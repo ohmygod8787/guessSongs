@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猜歌大挑戰</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { background-color: #1a1a1a; color: #fff; font-family: "Microsoft JhengHei", sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; user-select: none; }
+        .game-container { text-align: center; width: 100%; max-width: 600px; padding: 20px; }
+        #status-msg { color: #00AEEF; font-size: 16px; margin-bottom: 20px; min-height: 24px; font-weight: bold; }
+        #song-display { color: #FF3B30; font-size: 32px; font-weight: 900; margin-bottom: 80px; min-height: 100px; line-height: 1.4; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; transition: opacity 0.3s; }
+        .desktop-separator { margin: 0 15px; }
+        .controls { display: flex; justify-content: space-around; align-items: center; margin-bottom: 100px; }
+        .btn-box { cursor: pointer; transition: transform 0.2s; flex: 1; display: flex; justify-content: center; }
+        .btn-box:active { transform: scale(0.9); }
+        .icon { color: #FF3B30; font-size: 55px; }
+        .footer { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
+        .restart-btn { color: #FF3B30; font-size: 40px; cursor: pointer; transition: transform 0.3s; }
+        .restart-btn:hover { transform: rotate(90deg); }
+        select { background-color: #1a1a1a; color: #fff; border: 1px solid #00AEEF; padding: 8px 12px; font-size: 16px; border-radius: 5px; cursor: pointer; }
+        #yt-player-container { position: absolute; top: -5000px; left: -5000px; width: 200px; height: 200px; overflow: hidden; }
+        @media (max-width: 500px) { #song-display { flex-direction: column; font-size: 28px; } .desktop-separator { display: none !important; } .song-title { margin-top: 10px; } }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <div id="status-msg">正在準備播放器...</div>
+        <div id="song-display">
+            <span id="display-info">載入中...</span>
+            <span class="desktop-separator">-</span>
+            <span id="display-title" class="song-title">歌曲名稱</span>
+        </div>
+        <div class="controls">
+            <div class="btn-box" id="prev-btn"><i class="fas fa-step-backward icon"></i></div>
+            <div class="btn-box" id="play-btn"><i class="fas fa-play icon" style="font-size: 65px;"></i></div>
+            <div class="btn-box" id="next-btn"><i class="fas fa-step-forward icon"></i></div>
+        </div>
+        <div class="footer">
+            <i class="fas fa-rotate-right restart-btn" onclick="location.reload()"></i>
+            <div class="select-area">
+                <select id="area-select">
+                    <option value="A">A區 (1971-1980)</option>
+                    <option value="B">B區</option>
+                    <option value="C">C區</option>
+                    <option value="D">D區</option>
+                    <option value="E">E區</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="yt-player-container"><div id="player"></div></div>
+
+    <script>
+        const songData = {
+            "A": [
+                { year: 1979, singer: "蔡琴", title: "恰似你的溫柔", ytId: "", start: 0 },
+                { year: 1972, singer: "甄妮", title: "誓言", ytId: "", start: 0 },
+                { year: 1979, singer: "潘安邦", title: "外婆的澎湖灣", ytId: "", start: 0 },
+                { year: 1977, singer: "鄧麗君", title: "月亮代表我的心", ytId: "", start: 0 },
+                { year: 1977, singer: "鳳飛飛", title: "我是一片雲", ytId: "", start: 0 },
+                { year: 1979, singer: "齊豫", title: "橄欖樹", ytId: "", start: 0 },
+                { year: 1973, singer: "歐陽菲菲", title: "熱情的沙漠", ytId: "", start: 0 },
+                { year: 1971, singer: "楊小萍", title: "梨山痴情花", ytId: "", start: 0 },
+                { year: 1958, singer: "陳芬蘭", title: "孤女的願望(台)", ytId: "", start: 0 },
+                { year: 1960, singer: "文夏", title: "黃昏的故鄉(台)", ytId: "", start: 0 },
+                { year: 1958, singer: "洪一峰", title: "思慕的人(台)", ytId: "", start: 0 },
+                { year: 1971, singer: "西卿", title: "苦海女神龍(台)", ytId: "", start: 0 },
+                { year: 1980, singer: "尤雅", title: "等無人(台)", ytId: "", start: 0 },
+                { year: 1971, singer: "方瑞娥", title: "最後的火車站(台)", ytId: "", start: 0 },
+                { year: 1971, singer: "邱蘭芬", title: "走馬燈(台)", ytId: "", start: 0 },
+                { year: 1970, singer: "葉啟田", title: "內山姑娘要出嫁(台)", ytId: "", start: 0 },
+                { year: 1959, singer: "郭金發", title: "燒肉粽(台)", ytId: "", start: 0 },
+                { year: 1980, singer: "陳盈潔", title: "期待再相會(台)", ytId: "", start: 0 },
+                { year: 1972, singer: "西卿", title: "粉紅色的腰帶(台)", ytId: "", start: 0 },
+                { year: 1977, singer: "鳳飛飛", title: "心酸酸(台)", ytId: "", start: 0 }
+            ],
+            "B": [], "C": [], "D": [], "E": []
+        };
+
+        let currentList = [], currentIndex = 0, player, isPlayerReady = false, stopTimer;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function renderSong() {
+            const song = currentList[currentIndex];
+            $("#song-display").css("opacity", 0);
+            setTimeout(() => {
+                $("#display-info").text(song.year + " - " + song.singer);
+                $("#display-title").text(song.title);
+                $("#song-display").css("opacity", 1);
+            }, 200);
+            if (isPlayerReady) player.stopVideo();
+            clearTimeout(stopTimer);
+            $("#status-msg").text("準備就緒，請按播放。").css("color", "#00AEEF");
+        }
+
+        function initArea(area) {
+            if (!songData[area] || songData[area].length === 0) return;
+            currentList = shuffle([...songData[area]]);
+            currentIndex = 0;
+            renderSong();
+        }
+
+        window.onYouTubeIframeAPIReady = function() {
+            player = new YT.Player('player', {
+                height: '200', width: '200',
+                playerVars: { 'autoplay': 0, 'controls': 0, 'rel': 0, 'playsinline': 1, 'origin': window.location.origin },
+                events: {
+                    'onReady': function() {
+                        isPlayerReady = true;
+                        $("#status-msg").text("播放器就緒！").css("color", "#00AEEF");
+                    },
+                    'onStateChange': function(event) {
+                        if (event.data == 1) {
+                            clearTimeout(stopTimer);
+                            stopTimer = setTimeout(() => { player.pauseVideo(); }, 5000);
+                        }
+                    },
+                    'onError': function(e) {
+                        $("#status-msg").text("⚠️ 影片無法播放 (Error: " + e.data + ")").css("color", "#FF3B30");
+                    }
+                }
+            });
+        };
+
+        $(document).ready(function() {
+            initArea("A");
+            $("#play-btn").click(function() {
+                if (!isPlayerReady) return;
+                const song = currentList[currentIndex];
+                if (!song.ytId) { alert("尚未填入 ID！"); return; }
+                player.mute();
+                player.loadVideoById({ videoId: song.ytId, startSeconds: song.start });
+                player.playVideo();
+                setTimeout(() => { player.unMute(); player.setVolume(100); player.playVideo(); }, 600);
+            });
+            $("#next-btn").click(function() { if (currentIndex < currentList.length-1) { currentIndex++; renderSong(); } else { initArea($("#area-select").val()); } });
+            $("#prev-btn").click(function() { if (currentIndex > 0) { currentIndex--; renderSong(); } });
+            $("#area-select").change(function() { initArea($(this).val()); });
+        });
+
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    </script>
+</body>
+</html>
