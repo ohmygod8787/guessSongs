@@ -4,34 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>猜歌大挑戰</title>
-    <!-- 引入圖標與 jQuery -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body { background-color: #1a1a1a; color: #fff; font-family: "Microsoft JhengHei", sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; user-select: none; }
         .game-container { text-align: center; width: 100%; max-width: 600px; padding: 20px; }
         #status-msg { color: #00AEEF; font-size: 16px; margin-bottom: 20px; min-height: 24px; font-weight: bold; }
-        
-        /* 歌名顯示區域 */
         #song-display { color: #FF3B30; font-size: 32px; font-weight: 900; margin-bottom: 80px; min-height: 100px; line-height: 1.4; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; transition: opacity 0.3s; }
         .desktop-separator { margin: 0 15px; }
-
-        /* 中間大按鈕 */
         .controls { display: flex; justify-content: space-around; align-items: center; margin-bottom: 100px; }
         .btn-box { cursor: pointer; transition: transform 0.2s; flex: 1; display: flex; justify-content: center; }
         .btn-box:active { transform: scale(0.9); }
         .icon { color: #FF3B30; font-size: 55px; }
 
-        /* 底部功能區 */
         .footer { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
+        .footer-left { display: flex; align-items: center; gap: 15px; }
+
+        .restart-btn { color: #FF3B30; font-size: 40px; cursor: pointer; }
         
-        /* 左側按鈕群組 (重新開始 + 模式切換) */
-        .footer-left { display: flex; align-items: center; gap: 20px; }
-
-        .restart-btn { color: #FF3B30; font-size: 40px; cursor: pointer; transition: transform 0.3s; }
-        .restart-btn:hover { transform: rotate(90deg); }
-
-        /* 模式按鈕樣式 (紅框) */
+        /* 播放模式按鈕樣式 */
         .mode-btn {
             color: #FF3B30;
             font-size: 26px;
@@ -41,11 +32,11 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            border: 3px solid transparent; /* 預設沒框 */
+            border: 3px solid transparent;
             transition: all 0.2s;
         }
 
-        /* 被選中時的紅框樣式 */
+        /* 被選中時的紅框 */
         .mode-btn.active {
             border: 3px solid #FF3B30;
             border-radius: 8px;
@@ -53,11 +44,11 @@
 
         select { background-color: #1a1a1a; color: #fff; border: 1px solid #00AEEF; padding: 8px 12px; font-size: 16px; border-radius: 5px; cursor: pointer; }
         #yt-player-container { position: absolute; top: -5000px; left: -5000px; width: 200px; height: 200px; overflow: hidden; }
-
+        
         @media (max-width: 500px) { 
             #song-display { font-size: 28px; } 
             .desktop-separator { display: none !important; } 
-            .footer-left { gap: 10px; }
+            .footer-left { gap: 8px; }
             .mode-btn { width: 38px; height: 38px; font-size: 22px; }
         }
     </style>
@@ -78,16 +69,13 @@
         </div>
         <div class="footer">
             <div class="footer-left">
-                <!-- 重新開始 -->
-                <i class="fas fa-rotate-right restart-btn" onclick="location.reload()" title="重新整理網頁"></i>
-                
-                <!-- 依序播放按鈕 (左紅框) -->
-                <div class="mode-btn" id="btn-sequential" title="依序播放">
+                <i class="fas fa-rotate-right restart-btn" onclick="location.reload()" title="重新開始"></i>
+                <!-- 依序播放按鈕 -->
+                <div class="mode-btn" id="btn-seq" title="依序播放">
                     <i class="fas fa-list-ol"></i>
                 </div>
-                
-                <!-- 隨機播放按鈕 (右紅框) -->
-                <div class="mode-btn" id="btn-random" title="隨機播放">
+                <!-- 隨機播放按鈕 -->
+                <div class="mode-btn" id="btn-rand" title="隨機播放">
                     <i class="fas fa-shuffle"></i>
                 </div>
             </div>
@@ -107,6 +95,7 @@
     <div id="yt-player-container"><div id="player"></div></div>
 
     <script>
+        // 資料庫
         const songData = {
             "A": [
                 { year: 1979, singer: "蔡琴", title: "恰似你的溫柔", ytId: "bs4Wz_b5p90", start: 70 },
@@ -134,42 +123,35 @@
         };
 
         let currentList = [], currentIndex = 0, player, isPlayerReady = false, stopTimer;
-        let playMode = 'random'; // 'sequential' or 'random'
+        let currentMode = 'rand'; // 'seq' or 'rand'
 
-        // 核心邏輯：建立播放清單
-        function buildPlaylist() {
-            let list = [];
+        // 核心功能：切換模式並建立清單
+        function switchMode(mode) {
+            currentMode = mode;
+            $(".mode-btn").removeClass("active");
             
-            if (playMode === 'random') {
-                // 隨機播放：混和所有區域的歌曲
-                Object.keys(songData).forEach(key => {
-                    list = list.concat(songData[key]);
-                });
-                // 打亂順序
-                for (let i = list.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [list[i], list[j]] = [list[j], list[i]];
-                }
-            } else {
-                // 依序播放：照 A->B->C 順序拼接
-                const order = ["A", "B", "C", "D", "E"];
-                order.forEach(key => {
-                    list = list.concat(songData[key]);
-                });
-                
-                // 如果在依序模式下更換了下拉選單區域，我們手動將索引跳到該區起點
-                const selectedArea = $("#area-select").val();
-                let jumpIndex = 0;
-                for(let i=0; i<order.indexOf(selectedArea); i++) {
-                    jumpIndex += songData[order[i]].length;
-                }
-                currentIndex = jumpIndex;
-                renderSong();
-                return; // 提早結束，不重置 currentIndex 為 0
-            }
+            let allSongs = [];
+            const areas = ["A", "B", "C", "D", "E"];
+            areas.forEach(a => { allSongs = allSongs.concat(songData[a]); });
 
-            currentList = list;
-            currentIndex = 0;
+            if (mode === 'seq') {
+                $("#btn-seq").addClass("active");
+                // 依序模式：清單就是原始拼接的 allSongs
+                currentList = allSongs;
+                
+                // 跳轉到目前下拉選單選中區域的第一首歌
+                const selectedArea = $("#area-select").val();
+                let targetIndex = 0;
+                for (let i = 0; i < areas.indexOf(selectedArea); i++) {
+                    targetIndex += songData[areas[i]].length;
+                }
+                currentIndex = targetIndex;
+            } else {
+                $("#btn-rand").addClass("active");
+                // 隨機模式：打亂 allSongs
+                currentList = [...allSongs].sort(() => Math.random() - 0.5);
+                currentIndex = 0;
+            }
             renderSong();
         }
 
@@ -184,7 +166,7 @@
             }, 200);
             if (isPlayerReady) player.stopVideo();
             clearTimeout(stopTimer);
-            $("#status-msg").text("準備就緒，請按播放。").css("color", "#00AEEF");
+            $("#status-msg").text("準備就緒。").css("color", "#00AEEF");
         }
 
         window.onYouTubeIframeAPIReady = function() {
@@ -192,48 +174,28 @@
                 height: '200', width: '200',
                 playerVars: { 'autoplay': 0, 'controls': 0, 'rel': 0, 'playsinline': 1, 'origin': window.location.origin },
                 events: {
-                    'onReady': function() {
-                        isPlayerReady = true;
-                        $("#status-msg").text("播放器就緒！").css("color", "#00AEEF");
-                    },
+                    'onReady': function() { isPlayerReady = true; $("#status-msg").text("播放器就緒！"); },
                     'onStateChange': function(event) {
-                        if (event.data == 1) { // Playing
+                        if (event.data == 1) {
                             clearTimeout(stopTimer);
                             stopTimer = setTimeout(() => { player.pauseVideo(); }, 5000);
                         }
-                    },
-                    'onError': function(e) {
-                        $("#status-msg").text("⚠️ 播放錯誤 (Error: " + e.data + ")").css("color", "#FF3B30");
                     }
                 }
             });
         };
 
         $(document).ready(function() {
-            // 初始設定：隨機播放模式高亮
-            $("#btn-random").addClass("active");
-            buildPlaylist();
+            // 初始載入：隨機模式
+            switchMode('rand');
 
-            // 模式切換：依序播放
-            $("#btn-sequential").click(function() {
-                playMode = 'sequential';
-                $(".mode-btn").removeClass("active");
-                $(this).addClass("active");
-                buildPlaylist();
-            });
-
-            // 模式切換：隨機播放
-            $("#btn-random").click(function() {
-                playMode = 'random';
-                $(".mode-btn").removeClass("active");
-                $(this).addClass("active");
-                buildPlaylist();
-            });
+            $("#btn-seq").click(() => switchMode('seq'));
+            $("#btn-rand").click(() => switchMode('rand'));
 
             $("#play-btn").click(function() {
                 if (!isPlayerReady) return;
                 const song = currentList[currentIndex];
-                if (!song.ytId) { alert("尚未填入 ID！"); return; }
+                if (!song || !song.ytId) { alert("此位點無有效 ID！"); return; }
                 player.mute();
                 player.loadVideoById({ videoId: song.ytId, startSeconds: song.start });
                 player.playVideo();
@@ -245,7 +207,8 @@
                     currentIndex++;
                     renderSong();
                 } else {
-                    alert("已經是清單最後一首了！");
+                    alert("清單結束，將重新開始。");
+                    switchMode(currentMode);
                 }
             });
 
@@ -256,18 +219,10 @@
                 }
             });
 
-            // 年份(區域)選單切換連動
+            // 選單變動：
             $("#area-select").change(function() {
-                if (playMode === 'sequential') {
-                    buildPlaylist(); // 依序播放下，跳轉到該區域開頭
-                } else {
-                    // 隨機播放下，更換區域選單通常代表使用者想看特定年份，
-                    // 這裡我們可以設計成：即使是隨機模式，切換下拉選單就自動切換到依序播放模式並選中該區。
-                    playMode = 'sequential';
-                    $(".mode-btn").removeClass("active");
-                    $("#btn-sequential").addClass("active");
-                    buildPlaylist();
-                }
+                // 不管在什麼模式，選了區塊通常代表想要「依序」看該區
+                switchMode('seq');
             });
         });
 
