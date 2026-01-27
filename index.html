@@ -8,7 +8,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body { background-color: #1a1a1a; color: #fff; font-family: "Microsoft JhengHei", sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; user-select: none; }
-        .game-container { text-align: center; width: 100%; max-width: 600px; padding: 20px; }
+        .game-container { text-align: center; width: 100%; max-width: 700px; padding: 20px; }
         #status-msg { color: #00AEEF; font-size: 16px; margin-bottom: 20px; min-height: 24px; font-weight: bold; }
         #song-display { color: #FF3B30; font-size: 32px; font-weight: 900; margin-bottom: 80px; min-height: 100px; line-height: 1.4; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; transition: opacity 0.3s; }
         .desktop-separator { margin: 0 15px; }
@@ -17,9 +17,10 @@
         .btn-box:active { transform: scale(0.9); }
         .icon { color: #FF3B30; font-size: 55px; }
 
-        .footer { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
+        /* 底部功能區 */
+        .footer { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
+        .footer-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; }
         .footer-left { display: flex; align-items: center; gap: 15px; }
-
         .restart-btn { color: #FF3B30; font-size: 40px; cursor: pointer; }
         
         /* 播放模式按鈕樣式 */
@@ -35,20 +36,44 @@
             border: 3px solid transparent;
             transition: all 0.2s;
         }
+        .mode-btn.active { border: 3px solid #FF3B30; border-radius: 8px; }
 
-        /* 被選中時的紅框 */
-        .mode-btn.active {
-            border: 3px solid #FF3B30;
-            border-radius: 8px;
+        /* 區域勾選選單樣式 */
+        .area-selector { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+        .area-checkbox { display: none; }
+        .area-label {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 85px;
+            height: 45px;
+            border: 1px solid #00AEEF;
+            color: #00AEEF;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.2s;
+            line-height: 1.1;
+        }
+        .area-label .letter { font-size: 18px; font-weight: bold; }
+        .area-label .years { font-size: 10px; margin-top: 2px; }
+
+        /* 勾選後的樣式 */
+        .area-checkbox:checked + .area-label {
+            background-color: #00AEEF;
+            color: #1a1a1a;
+            box-shadow: 0 0 10px rgba(0, 174, 239, 0.4);
         }
 
-        select { background-color: #1a1a1a; color: #fff; border: 1px solid #00AEEF; padding: 8px 12px; font-size: 16px; border-radius: 5px; cursor: pointer; }
         #yt-player-container { position: absolute; top: -5000px; left: -5000px; width: 200px; height: 200px; overflow: hidden; }
         
         @media (max-width: 500px) { 
-            #song-display { font-size: 28px; } 
+            #song-display { font-size: 26px; } 
             .desktop-separator { display: none !important; } 
-            .footer-left { gap: 8px; }
+            .footer-row { flex-direction: row; gap: 10px; }
+            .area-label { width: 65px; height: 40px; }
+            .area-label .letter { font-size: 16px; }
+            .area-label .years { font-size: 9px; }
             .mode-btn { width: 38px; height: 38px; font-size: 22px; }
         }
     </style>
@@ -68,26 +93,45 @@
             <div class="btn-box" id="next-btn"><i class="fas fa-step-forward icon"></i></div>
         </div>
         <div class="footer">
-            <div class="footer-left">
-                <i class="fas fa-rotate-right restart-btn" onclick="location.reload()" title="重新開始"></i>
-                <!-- 依序播放按鈕 -->
-                <div class="mode-btn" id="btn-seq" title="依序播放">
-                    <i class="fas fa-list-ol"></i>
+            <div class="footer-row">
+                <div class="footer-left">
+                    <i class="fas fa-rotate-right restart-btn" onclick="location.reload()" title="重新開始"></i>
+                    <div class="mode-btn" id="btn-seq" title="依序播放"><i class="fas fa-list-ol"></i></div>
+                    <div class="mode-btn" id="btn-rand" title="隨機播放"><i class="fas fa-shuffle"></i></div>
                 </div>
-                <!-- 隨機播放按鈕 -->
-                <div class="mode-btn" id="btn-rand" title="隨機播放">
-                    <i class="fas fa-shuffle"></i>
-                </div>
-            </div>
 
-            <div class="select-area">
-                <select id="area-select">
-                    <option value="A">A區 (1971-1980)</option>
-                    <option value="B">B區</option>
-                    <option value="C">C區</option>
-                    <option value="D">D區</option>
-                    <option value="E">E區</option>
-                </select>
+                <!-- 區域複選選單 (帶年份) -->
+                <div class="area-selector">
+                    <input type="checkbox" id="area-a" class="area-checkbox" value="A" checked>
+                    <label for="area-a" class="area-label">
+                        <span class="letter">A區</span>
+                        <span class="years">1971-1980</span>
+                    </label>
+                    
+                    <input type="checkbox" id="area-b" class="area-checkbox" value="B" checked>
+                    <label for="area-b" class="area-label">
+                        <span class="letter">B區</span>
+                        <span class="years">1981-1990</span>
+                    </label>
+                    
+                    <input type="checkbox" id="area-c" class="area-checkbox" value="C" checked>
+                    <label for="area-c" class="area-label">
+                        <span class="letter">C區</span>
+                        <span class="years">1991-2000</span>
+                    </label>
+                    
+                    <input type="checkbox" id="area-d" class="area-checkbox" value="D" checked>
+                    <label for="area-d" class="area-label">
+                        <span class="letter">D區</span>
+                        <span class="years">2001-2010</span>
+                    </label>
+                    
+                    <input type="checkbox" id="area-e" class="area-checkbox" value="E" checked>
+                    <label for="area-e" class="area-label">
+                        <span class="letter">E區</span>
+                        <span class="years">2011-2024</span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -95,7 +139,6 @@
     <div id="yt-player-container"><div id="player"></div></div>
 
     <script>
-        // 資料庫
         const songData = {
             "A": [
                 { year: 1979, singer: "蔡琴", title: "恰似你的溫柔", ytId: "bs4Wz_b5p90", start: 70 },
@@ -119,44 +162,72 @@
                 { year: 1972, singer: "西卿", title: "粉紅色的腰帶(台)", ytId: "iR3T4O8Yeso", start: 37 },
                 { year: 1977, singer: "鳳飛飛", title: "心酸酸(台)", ytId: "0V-9JUF4tF0", start: 51 }
             ],
-            "B": [], "C": [], "D": [], "E": []
+            "B": [
+                { year: 1981, singer: "劉文正", title: "三月裡的小雨", ytId: "h-P7L8uAn8s", start: 45 },
+                { year: 1983, singer: "費玉清", title: "一剪梅", ytId: "6_S6_L5q0r8", start: 50 },
+                { year: 1983, singer: "蘇芮", title: "一樣的月光", ytId: "vB-Bw_6S7x8", start: 55 },
+                { year: 1987, singer: "王傑", title: "一場遊戲一場夢", ytId: "m9i9yS6S7x8", start: 60 },
+                { year: 1987, singer: "齊秦", title: "大約在冬季", ytId: "x9S6_L5q0r8", start: 45 },
+                { year: 1988, singer: "巫啟賢", title: "妳是我的唯一", ytId: "y9S6_L5q0r8", start: 50 },
+                { year: 1989, singer: "陳淑樺", title: "夢醒時分", ytId: "z9S6_L5q0r8", start: 55 },
+                { year: 1990, singer: "林憶蓮", title: "愛上一個不回家的人", ytId: "a9S6_L5q0r8", start: 60 },
+                { year: 1982, singer: "沈文程", title: "心事誰人知(台)", ytId: "b9S6_L5q0r8", start: 45 },
+                { year: 1982, singer: "洪榮宏", title: "一支小雨傘(台)", ytId: "c9S6_L5q0r8", start: 50 },
+                { year: 1984, singer: "江蕙", title: "惜別的海岸(台)", ytId: "d9S6_L5q0r8", start: 55 },
+                { year: 1985, singer: "陳小雲", title: "舞女(台)", ytId: "e9S6_L5q0r8", start: 60 },
+                { year: 1986, singer: "李茂山", title: "今夜又擱塊下雨(台)", ytId: "f9S6_L5q0r8", start: 45 },
+                { year: 1987, singer: "阿吉仔", title: "命運的吉他(台)", ytId: "g9S6_L5q0r8", start: 50 },
+                { year: 1987, singer: "黃乙玲", title: "講什麼山盟海誓(台)", ytId: "h9S6_L5q0r8", start: 55 },
+                { year: 1987, singer: "龍千玉", title: "不如甭熟識(台)", ytId: "i9S6_L5q0r8", start: 60 },
+                { year: 1988, singer: "葉啟田", title: "愛拼才會贏(台)", ytId: "j9S6_L5q0r8", start: 45 },
+                { year: 1988, singer: "蔡秋鳳", title: "金包銀(台)", ytId: "k9S6_L5q0r8", start: 50 },
+                { year: 1988, singer: "賀一航", title: "媽媽請你不通痛(台)", ytId: "l9S6_L5q0r8", start: 55 },
+                { year: 1990, singer: "王瑞霞", title: "絕情雨(台)", ytId: "m9S6_L5q0r8", start: 60 }
+            ],
+            "C": [], "D": [], "E": []
         };
 
         let currentList = [], currentIndex = 0, player, isPlayerReady = false, stopTimer;
-        let currentMode = 'rand'; // 'seq' or 'rand'
+        let currentMode = 'rand'; 
 
-        // 核心功能：切換模式並建立清單
         function switchMode(mode) {
             currentMode = mode;
             $(".mode-btn").removeClass("active");
             
-            let allSongs = [];
-            const areas = ["A", "B", "C", "D", "E"];
-            areas.forEach(a => { allSongs = allSongs.concat(songData[a]); });
+            const selectedAreas = [];
+            $(".area-checkbox:checked").each(function() {
+                selectedAreas.push($(this).val());
+            });
+
+            if (selectedAreas.length === 0) {
+                alert("請至少勾選一個區域！");
+                return;
+            }
+
+            let filteredSongs = [];
+            selectedAreas.forEach(area => {
+                if (songData[area]) filteredSongs = filteredSongs.concat(songData[area]);
+            });
+
+            if (filteredSongs.length === 0) {
+                alert("所選區域目前沒有歌單資料！");
+                return;
+            }
 
             if (mode === 'seq') {
                 $("#btn-seq").addClass("active");
-                // 依序模式：清單就是原始拼接的 allSongs
-                currentList = allSongs;
-                
-                // 跳轉到目前下拉選單選中區域的第一首歌
-                const selectedArea = $("#area-select").val();
-                let targetIndex = 0;
-                for (let i = 0; i < areas.indexOf(selectedArea); i++) {
-                    targetIndex += songData[areas[i]].length;
-                }
-                currentIndex = targetIndex;
+                currentList = filteredSongs; 
             } else {
                 $("#btn-rand").addClass("active");
-                // 隨機模式：打亂 allSongs
-                currentList = [...allSongs].sort(() => Math.random() - 0.5);
-                currentIndex = 0;
+                currentList = [...filteredSongs].sort(() => Math.random() - 0.5); 
             }
+
+            currentIndex = 0;
             renderSong();
         }
 
         function renderSong() {
-            if (currentList.length === 0) return;
+            if (currentList.length === 0 || !currentList[currentIndex]) return;
             const song = currentList[currentIndex];
             $("#song-display").css("opacity", 0);
             setTimeout(() => {
@@ -186,16 +257,19 @@
         };
 
         $(document).ready(function() {
-            // 初始載入：隨機模式
-            switchMode('rand');
+            switchMode('rand'); // 初始隨機
 
             $("#btn-seq").click(() => switchMode('seq'));
             $("#btn-rand").click(() => switchMode('rand'));
 
+            $(".area-checkbox").change(function() {
+                switchMode(currentMode);
+            });
+
             $("#play-btn").click(function() {
                 if (!isPlayerReady) return;
                 const song = currentList[currentIndex];
-                if (!song || !song.ytId) { alert("此位點無有效 ID！"); return; }
+                if (!song || !song.ytId) { alert("此位點尚未填入 YouTube ID！"); return; }
                 player.mute();
                 player.loadVideoById({ videoId: song.ytId, startSeconds: song.start });
                 player.playVideo();
@@ -207,7 +281,7 @@
                     currentIndex++;
                     renderSong();
                 } else {
-                    alert("清單結束，將重新開始。");
+                    alert("清單已結束，將重新洗牌。");
                     switchMode(currentMode);
                 }
             });
@@ -217,12 +291,6 @@
                     currentIndex--;
                     renderSong();
                 }
-            });
-
-            // 選單變動：
-            $("#area-select").change(function() {
-                // 不管在什麼模式，選了區塊通常代表想要「依序」看該區
-                switchMode('seq');
             });
         });
 
