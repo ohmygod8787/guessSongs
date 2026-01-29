@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>猜歌大挑戰1/29-11:22</title>
+    <title>猜歌大挑戰 - 手機穩定版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
@@ -39,7 +39,7 @@
         .area-label .years { font-size: 10px; margin-top: 2px; }
         .area-checkbox:checked + .area-label { background-color: #00AEEF; color: #1a1a1a; box-shadow: 0 0 10px rgba(0, 174, 239, 0.4); }
 
-        /* 修改：讓播放器在手機版保持極小尺寸但在視線範圍內，並設置低透明度 */
+        /* 手機播放器真機優化：必須設為正數 z-index，否則手機系統會休眠該組件 */
         #yt-player-container { 
             position: fixed; 
             bottom: 0; 
@@ -47,8 +47,9 @@
             width: 1px; 
             height: 1px; 
             overflow: hidden; 
-            opacity: 0.01;
-            z-index: -1;
+            opacity: 0.05;
+            z-index: 9999;
+            pointer-events: none;
         }
         
         @media (max-width: 500px) { 
@@ -101,7 +102,7 @@
                     <label for="area-e" class="area-label"><span class="letter">E區</span><span class="years">2011-2020</span></label>
 
                     <input type="checkbox" id="area-f" class="area-checkbox" value="F" checked>
-                    <label for="area-f" class="area-label"><span class="letter">F區</span><span class="years">After 2021</span></label>
+                    <label for="area-f" class="area-label"><span class="letter">F區</span><span class="years">After-2021</span></label>
                 </div>
             </div>
         </div>
@@ -111,7 +112,6 @@
 
     <script>
         const songData = {
-            // Before 1980
             "A": [
                 { year: 1979, singer: "蔡琴", title: "恰似你的溫柔", ytId: "bs4Wz_b5p90", start: 70 },
                 { year: 1972, singer: "甄妮", title: "誓言", ytId: "OhMWoeuBiWc", start: 52 },
@@ -132,13 +132,8 @@
                 { year: 1959, singer: "郭金發", title: "燒肉粽(台)", ytId: "m45fUda0xP4", start: 47 },
                 { year: 1980, singer: "陳盈潔", title: "期待再相會(台)", ytId: "hEKV8QQ_8DA", start: 51 },
                 { year: 1972, singer: "西卿", title: "粉紅色的腰帶(台)", ytId: "iR3T4O8Yeso", start: 37 },
-                { year: 1977, singer: "鳳飛飛", title: "心酸酸(台)", ytId: "0V-9JUF4tF0", start: 51 },
-                // 以上20首
-                // { year: 1960, singer: "洪一峰", title: "山頂的黑狗兄(台)", ytId: "", start: 0 },
-                // { year: 1962, singer: "葉啟田", title: "媽媽請你也保重(台)", ytId: "", start: 0 },
-                // { year: 1964, singer: "葉啟田", title: "墓仔埔也敢去(台)", ytId: "", start: 0 },
+                { year: 1977, singer: "鳳飛飛", title: "心酸酸(台)", ytId: "0V-9JUF4tF0", start: 51 }
             ],
-            // 1981-1990
             "B": [
                 { year: 1981, singer: "劉文正", title: "三月裡的小雨", ytId: "7-7x9ddaBX8", start: 38 },
                 { year: 1983, singer: "費玉清", title: "一剪梅", ytId: "AjitR7RZEQU", start: 93 },
@@ -159,15 +154,8 @@
                 { year: 1988, singer: "葉啟田", title: "愛拼才會贏(台)", ytId: "rBiE1dNaSqg", start: 50 },
                 { year: 1988, singer: "蔡秋鳳", title: "金包銀(台)", ytId: "6R2yfAOYRlw", start: 57 },
                 { year: 1988, singer: "賀一航", title: "媽媽請你不通痛(台)", ytId: "ZU_Rg3NOIqY", start: 82 },
-                { year: 1990, singer: "王瑞霞", title: "絕情雨(台)", ytId: "Y_sypl1xnDw", start: 60 },
-                // 以上20首
-                // { year: 1981, singer: "洪榮宏", title: "我是男子漢(台)", ytId: "", start: 0 },
-                // { year: 1988, singer: "陳小雲", title: "愛情的騙子我問你(台)", ytId: "", start: 0 },
-                // { year: 1988, singer: "葉啟田", title: "浪子的心情(台)", ytId: "", start: 0 },
-                // { year: 1988, singer: "羅時豐 & 王瑞霞", title: "小姐請你給我愛(台)", ytId: "", start: 0 },
-                // { year: 1990, singer: "王識賢", title: "雙人枕頭(台)", ytId: "", start: 0 },
+                { year: 1990, singer: "王瑞霞", title: "絕情雨(台)", ytId: "Y_sypl1xnDw", start: 60 }
             ],
-            // 1991-2000
             "C": [
                 { year: 1991, singer: "張清芳", title: "加州陽光", ytId: "MUQokGdc_eo", start: 50 },
                 { year: 1992, singer: "張雨生", title: "大海", ytId: "sL1NQyOhxAc", start: 65 },
@@ -188,38 +176,8 @@
                 { year: 1994, singer: "施文彬 & 江蕙", title: "傷心酒店(台)", ytId: "VwNZ4en7SmE", start: 55 },
                 { year: 1999, singer: "五月天", title: "志明與春嬌(台)", ytId: "MHL00KwcGlU", start: 62 },
                 { year: 1999, singer: "五月天", title: "I Love You 無望(台)", ytId: "ArnP8KKsL7M", start: 60 },
-                { year: 2000, singer: "江蕙", title: "家後(台)", ytId: "6La0usd_dxU", start: 63 },
-                // 以上20首
-                // { year: 1991, singer: "黃克林", title: "倒退嚕(台)", ytId: "", start: 0 },
-                // { year: 1991, singer: "沈文程 & 張瀛仁", title: "舊情也綿綿(台)", ytId: "", start: 0 },
-                // { year: 1991, singer: "王識賢 & 陳亮吟", title: "雪中紅(台)", ytId: "", start: 0 },
-                // { year: 1992, singer: "陳小雲", title: "愛情恰恰(台)", ytId: "", start: 0 },
-                // { year: 1992, singer: "江蕙", title: "酒後的心聲(台)", ytId: "", start: 0 },
-                // { year: 1993, singer: "謝金燕", title: "含淚跳恰恰(台)", ytId: "", start: 0 },
-                // { year: 1993, singer: "陳雷", title: "往事就是我的安慰(台)", ytId: "", start: 0 },
-                // { year: 1994, singer: "新寶島康樂隊", title: "鼓聲若響(台)", ytId: "", start: 0 },
-                // { year: 1994, singer: "羅時豐", title: "茫茫到深更(台)", ytId: "", start: 0 },
-                // { year: 1994, singer: "江蕙", title: "無言花(台)", ytId: "", start: 0 },
-                // { year: 1994, singer: "吳宗憲", title: "真心換絕情(台)", ytId: "", start: 0 },
-                // { year: 1995, singer: "施文彬", title: "再會啦！心愛的無緣的人(台)", ytId: "", start: 0 },
-                // { year: 1995, singer: "伍佰 & China Blue & 萬芳", title: "愛情限時批(台)", ytId: "", start: 0 },
-                // { year: 1995, singer: "曾心梅", title: "思念你的心肝你敢知(台)", ytId: "", start: 0 },
-                // { year: 1995, singer: "曾心梅", title: "天公疼憨人(台)", ytId: "", start: 0 },
-                // { year: 1995, singer: "孫淑媚", title: "媽媽你無對我講(台)", ytId: "", start: 0 },
-                // { year: 1996, singer: "張清芳", title: "無人熟識(台)", ytId: "", start: 0 },
-                // { year: 1996, singer: "新寶島康樂隊", title: "寶島曼波(台)", ytId: "", start: 0 },
-                // { year: 1997, singer: "黃乙玲", title: "愛你無條件(台)", ytId: "", start: 0 },
-                // { year: 1997, singer: "金門王 & 李炳輝", title: "流浪到淡水(台)", ytId: "", start: 0 },
-                // { year: 1997, singer: "江蕙", title: "花若離枝(台)", ytId: "", start: 0 },
-                // { year: 1998, singer: "伍佰 & China Blue", title: "心愛的再會啦(台)", ytId: "", start: 0 },
-                // { year: 1998, singer: "吳宗憲", title: "三暝三日(台)", ytId: "", start: 0 },
-                // { year: 1999, singer: "黃乙玲", title: "無字的情批(台)", ytId: "", start: 0 },
-                // { year: 1999, singer: "康康", title: "快樂鳥日子(台)", ytId: "", start: 0 },
-                // { year: 2000, singer: "黃妃", title: "追追追(台)", ytId: "", start: 0 },
-                // { year: 2000, singer: "江宏恩等", title: "飛龍在天(台)", ytId: "", start: 0 },
-                // { year: 2000, singer: "江蕙", title: "我愛過(台)", ytId: "", start: 0 },
+                { year: 2000, singer: "江蕙", title: "家後(台)", ytId: "6La0usd_dxU", start: 63 }
             ], 
-            // 2001-2010
             "D": [
                 { year: 2004, singer: "周杰倫", title: "爸 我回來了", ytId: "kbLjLQPaQmU", start: 74 },
                 { year: 2001, singer: "周杰倫", title: "忍者", ytId: "CtQhWZ8m-ws", start: 36 },
@@ -240,16 +198,8 @@
                 { year: 2002, singer: "袁小迪 & 龍千玉", title: "男人情女人心(台)", ytId: "2a1pZkEAWmg", start: 83 },
                 { year: 2002, singer: "江蕙 & 阿杜", title: "夢中的情話(台)", ytId: "xt4xXTz2rw0", start: 125 },
                 { year: 2004, singer: "王識賢 & 孫淑媚", title: "雲中月圓(台)", ytId: "iyVRksmmTx8", start: 100 },
-                { year: 2004, singer: "王識賢", title: "情難忘(台)", ytId: "GnQs4JlQ0ak", start: 66 },
-                // 以上20首
-                // { year: 2005, singer: "黃乙玲", title: "人生的歌(台)", ytId: "", start: 0 },
-                // { year: 2005, singer: "翁立友", title: "堅持(台)", ytId: "", start: 0 },
-                // { year: 2005, singer: "袁小迪", title: "重出江湖(台)", ytId: "", start: 0 },
-                // { year: 2006, singer: "蕭煌奇", title: "阿嬤的話(台)", ytId: "", start: 0 },
-                // { year: 2008, singer: "江蕙", title: "甲你攬牢牢(台)", ytId: "", start: 0 },
-                // { year: 2009, singer: "蕭煌奇", title: "心裡有針(台)", ytId: "", start: 0 },
+                { year: 2004, singer: "王識賢", title: "情難忘(台)", ytId: "GnQs4JlQ0ak", start: 66 }
             ], 
-            // 2011-2020
             "E": [
                 { year: 2011, singer: "陳勢安", title: "天后", ytId: "dvW1rPD0-nQ", start: 73 },
                 { year: 2011, singer: "謝和弦", title: "牽心萬苦", ytId: "CRBJCjSlAgM", start: 55 },
@@ -270,11 +220,10 @@
                 { year: 2014, singer: "李千娜", title: "心花開(台)", ytId: "48Spa7unh0A", start: 66 },
                 { year: 2017, singer: "滅火器樂團", title: "長途夜車(台)", ytId: "tp9NDsOBfUM", start: 91 },
                 { year: 2017, singer: "茄子蛋", title: "浪子回頭(台)", ytId: "5SpuDtWbDX8", start: 110 },
-                { year: 2020, singer: "徐若瑄", title: "別人的(台)", ytId: "d7uhe_zDa_k", start: 76 },
-            ], 
-            // After 2021
+                { year: 2020, singer: "徐若瑄", title: "別人的(台)", ytId: "d7uhe_zDa_k", start: 76 }
+            ],
             "F": [
-                { year: 2024, singer: "邱軍", title: "運轉人生(台)", ytId: "n18Vw5VT5UE", start: 47 },
+                { year: 2024, singer: "邱軍", title: "運轉人生(台)", ytId: "n18Vw5VT5UE", start: 47 }
             ]
         };
 
@@ -288,7 +237,11 @@
             $(".area-checkbox:checked").each(function() { selectedAreas.push($(this).val()); });
             if (selectedAreas.length === 0) { alert("請至少勾選一個區域！"); return; }
             let filteredSongs = [];
-            selectedAreas.forEach(area => { if (songData[area]) filteredSongs = filteredSongs.concat(songData[area]); });
+            ["A", "B", "C", "D", "E", "F"].forEach(area => {
+                if (selectedAreas.includes(area) && songData[area]) {
+                    filteredSongs = filteredSongs.concat(songData[area]);
+                }
+            });
             if (filteredSongs.length === 0) { alert("所選區域目前沒有歌單！"); return; }
             if (mode === 'seq') { $("#btn-seq").addClass("active"); currentList = filteredSongs; }
             else { $("#btn-rand").addClass("active"); currentList = [...filteredSongs].sort(() => Math.random() - 0.5); }
@@ -317,10 +270,13 @@
                 events: {
                     'onReady': function() { isPlayerReady = true; $("#status-msg").text("播放器就緒！"); },
                     'onStateChange': function(event) {
-                        if (event.data == 1) { // 開始播放
+                        if (event.data == 1) { // 播放中
                             clearTimeout(stopTimer);
                             stopTimer = setTimeout(() => { player.pauseVideo(); }, 5000);
                         }
+                    },
+                    'onError': function(e) {
+                        if (e.data == 150) { $("#status-msg").text("⚠️ 版權限制，請按下一首").css("color", "red"); }
                     }
                 }
             });
@@ -332,21 +288,21 @@
             $("#btn-rand").click(() => switchMode('rand'));
             $(".area-checkbox").change(function() { switchMode(currentMode); });
 
-            // 修改：播放邏輯修正，移除所有非同步延遲
+            // 手機端播放修正：先喚醒音軌再載入影片
             $("#play-btn").click(function() {
                 if (!isPlayerReady) return;
                 const song = currentList[currentIndex];
                 if (!song || !song.ytId) { alert("尚未填入 ID！"); return; }
                 
-                // 關鍵：直接取消靜音並播放，不要放在 setTimeout 裡面
+                // 真機必勝法：先 play 再 load
+                player.playVideo(); 
                 player.unMute(); 
                 player.setVolume(100);
+                
                 player.loadVideoById({ 
                     videoId: song.ytId, 
                     startSeconds: song.start 
                 });
-                // 某些手機需要顯式呼叫播放指令
-                player.playVideo(); 
             });
 
             $("#next-btn").click(function() {
