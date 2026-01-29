@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>猜歌大挑戰 - 手機穩定版</title>
+    <title>猜歌大挑戰 - 真機優化版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        body { background-color: #000; color: #fff; font-family: "Microsoft JhengHei", sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; user-select: none; }
-        .game-container { text-align: center; width: 100%; max-width: 700px; padding: 20px; }
+        body { background-color: green; color: #fff; font-family: "Microsoft JhengHei", sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; user-select: none; }
+        .game-container { text-align: center; width: 100%; max-width: 700px; padding: 20px; position: relative; z-index: 10; }
         #status-msg { color: #00AEEF; font-size: 16px; margin-bottom: 20px; min-height: 24px; font-weight: bold; }
         #song-display { color: #FF3B30; font-size: 32px; font-weight: 900; margin-bottom: 80px; min-height: 100px; line-height: 1.4; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; transition: opacity 0.3s; }
         .desktop-separator { margin: 0 15px; }
@@ -39,7 +39,7 @@
         .area-label .years { font-size: 10px; margin-top: 2px; }
         .area-checkbox:checked + .area-label { background-color: #00AEEF; color: #1a1a1a; box-shadow: 0 0 10px rgba(0, 174, 239, 0.4); }
 
-        /* 手機播放器真機優化：必須設為正數 z-index，否則手機系統會休眠該組件 */
+        /* 手機真機修正：播放器必須在頂層 (z-index 很大)，但設為透明且穿透點擊 */
         #yt-player-container { 
             position: fixed; 
             bottom: 0; 
@@ -47,9 +47,9 @@
             width: 1px; 
             height: 1px; 
             overflow: hidden; 
-            opacity: 0.05;
-            z-index: 9999;
-            pointer-events: none;
+            opacity: 0.1; /* 稍微有一點點透明度，避免系統認為它沒在跑 */
+            z-index: 9999; /* 必須為正數，讓它在最前台運作 */
+            pointer-events: none; /* 確保使用者點不到它，不會干擾按鈕 */
         }
         
         @media (max-width: 500px) { 
@@ -102,7 +102,7 @@
                     <label for="area-e" class="area-label"><span class="letter">E區</span><span class="years">2011-2020</span></label>
 
                     <input type="checkbox" id="area-f" class="area-checkbox" value="F" checked>
-                    <label for="area-f" class="area-label"><span class="letter">F區</span><span class="years">After-2021</span></label>
+                    <label for="area-f" class="area-label"><span class="letter">F區</span><span class="years">After 2021</span></label>
                 </div>
             </div>
         </div>
@@ -112,6 +112,7 @@
 
     <script>
         const songData = {
+            // Before 1980
             "A": [
                 { year: 1979, singer: "蔡琴", title: "恰似你的溫柔", ytId: "bs4Wz_b5p90", start: 70 },
                 { year: 1972, singer: "甄妮", title: "誓言", ytId: "OhMWoeuBiWc", start: 52 },
@@ -134,6 +135,7 @@
                 { year: 1972, singer: "西卿", title: "粉紅色的腰帶(台)", ytId: "iR3T4O8Yeso", start: 37 },
                 { year: 1977, singer: "鳳飛飛", title: "心酸酸(台)", ytId: "0V-9JUF4tF0", start: 51 }
             ],
+            // 1981-1990
             "B": [
                 { year: 1981, singer: "劉文正", title: "三月裡的小雨", ytId: "7-7x9ddaBX8", start: 38 },
                 { year: 1983, singer: "費玉清", title: "一剪梅", ytId: "AjitR7RZEQU", start: 93 },
@@ -156,6 +158,7 @@
                 { year: 1988, singer: "賀一航", title: "媽媽請你不通痛(台)", ytId: "ZU_Rg3NOIqY", start: 82 },
                 { year: 1990, singer: "王瑞霞", title: "絕情雨(台)", ytId: "Y_sypl1xnDw", start: 60 }
             ],
+            // 1991-2000
             "C": [
                 { year: 1991, singer: "張清芳", title: "加州陽光", ytId: "MUQokGdc_eo", start: 50 },
                 { year: 1992, singer: "張雨生", title: "大海", ytId: "sL1NQyOhxAc", start: 65 },
@@ -288,17 +291,19 @@
             $("#btn-rand").click(() => switchMode('rand'));
             $(".area-checkbox").change(function() { switchMode(currentMode); });
 
-            // 手機端播放修正：先喚醒音軌再載入影片
+            // 修改：播放按鈕邏輯
             $("#play-btn").click(function() {
                 if (!isPlayerReady) return;
                 const song = currentList[currentIndex];
                 if (!song || !song.ytId) { alert("尚未填入 ID！"); return; }
                 
-                // 真機必勝法：先 play 再 load
+                // 真機必勝連招：先喚醒 -> 靜音預播 -> 正式播放
+                // 1. 先叫出聲音權限
                 player.playVideo(); 
                 player.unMute(); 
                 player.setVolume(100);
                 
+                // 2. 立即換片並播放
                 player.loadVideoById({ 
                     videoId: song.ytId, 
                     startSeconds: song.start 
