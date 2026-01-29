@@ -23,49 +23,33 @@
         .footer-left { display: flex; align-items: center; gap: 15px; }
         .restart-btn { color: #FF3B30; font-size: 40px; cursor: pointer; }
         
-        /* 播放模式按鈕樣式 */
         .mode-btn {
-            color: #FF3B30;
-            font-size: 26px;
-            width: 45px;
-            height: 45px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: all 0.2s;
+            color: #FF3B30; font-size: 26px; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; border: 3px solid transparent; transition: all 0.2s;
         }
         .mode-btn.active { border: 3px solid #FF3B30; border-radius: 8px; }
 
-        /* 區域勾選選單樣式 */
         .area-selector { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
         .area-checkbox { display: none; }
         .area-label {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 85px;
-            height: 45px;
-            border: 1px solid #00AEEF;
-            color: #00AEEF;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: all 0.2s;
-            line-height: 1.1;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            width: 85px; height: 45px; border: 1px solid #00AEEF; color: #00AEEF; cursor: pointer; border-radius: 5px; transition: all 0.2s; line-height: 1.1;
         }
         .area-label .letter { font-size: 18px; font-weight: bold; }
         .area-label .years { font-size: 10px; margin-top: 2px; }
+        .area-checkbox:checked + .area-label { background-color: #00AEEF; color: #1a1a1a; box-shadow: 0 0 10px rgba(0, 174, 239, 0.4); }
 
-        /* 勾選後的樣式 */
-        .area-checkbox:checked + .area-label {
-            background-color: #00AEEF;
-            color: #1a1a1a;
-            box-shadow: 0 0 10px rgba(0, 174, 239, 0.4);
+        /* 修改：讓播放器在手機版保持極小尺寸但在視線範圍內，並設置低透明度 */
+        #yt-player-container { 
+            position: fixed; 
+            bottom: 0; 
+            right: 0; 
+            width: 1px; 
+            height: 1px; 
+            overflow: hidden; 
+            opacity: 0.01;
+            z-index: -1;
         }
-
-        #yt-player-container { position: absolute; top: -5000px; left: -5000px; width: 200px; height: 200px; overflow: hidden; }
         
         @media (max-width: 500px) { 
             #song-display { font-size: 26px; } 
@@ -100,37 +84,21 @@
                     <div class="mode-btn" id="btn-rand" title="隨機播放"><i class="fas fa-shuffle"></i></div>
                 </div>
 
-                <!-- 區域複選選單 (帶年份) -->
                 <div class="area-selector">
                     <input type="checkbox" id="area-a" class="area-checkbox" value="A" checked>
-                    <label for="area-a" class="area-label">
-                        <span class="letter">A區</span>
-                        <span class="years">1971-1980</span>
-                    </label>
+                    <label for="area-a" class="area-label"><span class="letter">A區</span><span class="years">1971-1980</span></label>
                     
                     <input type="checkbox" id="area-b" class="area-checkbox" value="B" checked>
-                    <label for="area-b" class="area-label">
-                        <span class="letter">B區</span>
-                        <span class="years">1981-1990</span>
-                    </label>
+                    <label for="area-b" class="area-label"><span class="letter">B區</span><span class="years">1981-1990</span></label>
                     
                     <input type="checkbox" id="area-c" class="area-checkbox" value="C" checked>
-                    <label for="area-c" class="area-label">
-                        <span class="letter">C區</span>
-                        <span class="years">1991-2000</span>
-                    </label>
+                    <label for="area-c" class="area-label"><span class="letter">C區</span><span class="years">1991-2000</span></label>
                     
                     <input type="checkbox" id="area-d" class="area-checkbox" value="D" checked>
-                    <label for="area-d" class="area-label">
-                        <span class="letter">D區</span>
-                        <span class="years">2001-2010</span>
-                    </label>
+                    <label for="area-d" class="area-label"><span class="letter">D區</span><span class="years">2001-2010</span></label>
                     
                     <input type="checkbox" id="area-e" class="area-checkbox" value="E" checked>
-                    <label for="area-e" class="area-label">
-                        <span class="letter">E區</span>
-                        <span class="years">2011-2024</span>
-                    </label>
+                    <label for="area-e" class="area-label"><span class="letter">E區</span><span class="years">2011-2024</span></label>
                 </div>
             </div>
         </div>
@@ -214,35 +182,14 @@
         function switchMode(mode) {
             currentMode = mode;
             $(".mode-btn").removeClass("active");
-            
             const selectedAreas = [];
-            $(".area-checkbox:checked").each(function() {
-                selectedAreas.push($(this).val());
-            });
-
-            if (selectedAreas.length === 0) {
-                alert("請至少勾選一個區域！");
-                return;
-            }
-
+            $(".area-checkbox:checked").each(function() { selectedAreas.push($(this).val()); });
+            if (selectedAreas.length === 0) { alert("請至少勾選一個區域！"); return; }
             let filteredSongs = [];
-            selectedAreas.forEach(area => {
-                if (songData[area]) filteredSongs = filteredSongs.concat(songData[area]);
-            });
-
-            if (filteredSongs.length === 0) {
-                alert("所選區域目前沒有歌單資料！");
-                return;
-            }
-
-            if (mode === 'seq') {
-                $("#btn-seq").addClass("active");
-                currentList = filteredSongs; 
-            } else {
-                $("#btn-rand").addClass("active");
-                currentList = [...filteredSongs].sort(() => Math.random() - 0.5); 
-            }
-
+            selectedAreas.forEach(area => { if (songData[area]) filteredSongs = filteredSongs.concat(songData[area]); });
+            if (filteredSongs.length === 0) { alert("所選區域目前沒有歌單！"); return; }
+            if (mode === 'seq') { $("#btn-seq").addClass("active"); currentList = filteredSongs; }
+            else { $("#btn-rand").addClass("active"); currentList = [...filteredSongs].sort(() => Math.random() - 0.5); }
             currentIndex = 0;
             renderSong();
         }
@@ -258,7 +205,7 @@
             }, 200);
             if (isPlayerReady) player.stopVideo();
             clearTimeout(stopTimer);
-            $("#status-msg").text("準備就緒。").css("color", "#00AEEF");
+            $("#status-msg").text("播放器就緒！").css("color", "#00AEEF");
         }
 
         window.onYouTubeIframeAPIReady = function() {
@@ -268,7 +215,7 @@
                 events: {
                     'onReady': function() { isPlayerReady = true; $("#status-msg").text("播放器就緒！"); },
                     'onStateChange': function(event) {
-                        if (event.data == 1) {
+                        if (event.data == 1) { // 開始播放
                             clearTimeout(stopTimer);
                             stopTimer = setTimeout(() => { player.pauseVideo(); }, 5000);
                         }
@@ -278,41 +225,33 @@
         };
 
         $(document).ready(function() {
-            switchMode('rand'); // 初始隨機
-
+            switchMode('rand');
             $("#btn-seq").click(() => switchMode('seq'));
             $("#btn-rand").click(() => switchMode('rand'));
+            $(".area-checkbox").change(function() { switchMode(currentMode); });
 
-            $(".area-checkbox").change(function() {
-                switchMode(currentMode);
-            });
-
+            // 修改：播放邏輯修正，移除所有非同步延遲
             $("#play-btn").click(function() {
                 if (!isPlayerReady) return;
                 const song = currentList[currentIndex];
-                if (!song || !song.ytId) { alert("此位點尚未填入 YouTube ID！"); return; }
-                player.mute();
-                player.loadVideoById({ videoId: song.ytId, startSeconds: song.start });
-                player.playVideo();
-                setTimeout(() => { player.unMute(); player.setVolume(100); player.playVideo(); }, 600);
+                if (!song || !song.ytId) { alert("尚未填入 ID！"); return; }
+                
+                // 關鍵：直接取消靜音並播放，不要放在 setTimeout 裡面
+                player.unMute(); 
+                player.setVolume(100);
+                player.loadVideoById({ 
+                    videoId: song.ytId, 
+                    startSeconds: song.start 
+                });
+                // 某些手機需要顯式呼叫播放指令
+                player.playVideo(); 
             });
 
             $("#next-btn").click(function() {
-                if (currentIndex < currentList.length - 1) {
-                    currentIndex++;
-                    renderSong();
-                } else {
-                    alert("清單已結束，將重新洗牌。");
-                    switchMode(currentMode);
-                }
+                if (currentIndex < currentList.length - 1) { currentIndex++; renderSong(); }
+                else { alert("清單結束，將重新開始。"); switchMode(currentMode); }
             });
-
-            $("#prev-btn").click(function() {
-                if (currentIndex > 0) {
-                    currentIndex--;
-                    renderSong();
-                }
-            });
+            $("#prev-btn").click(function() { if (currentIndex > 0) { currentIndex--; renderSong(); } });
         });
 
         var tag = document.createElement('script');
