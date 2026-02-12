@@ -31,6 +31,7 @@
         .icon { color: #FF3B30; font-size: 55px; }
 
         .footer { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
+        /* 垂直置中 footer-row 內的東西 */
         .footer-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; }
         
         .footer-left-group {
@@ -68,7 +69,6 @@
         .area-label .years { font-size: 10px; margin-top: 2px; }
         .area-checkbox:checked + .area-label { background-color: #00AEEF; color: #1a1a1a; box-shadow: 0 0 10px rgba(0, 174, 239, 0.4); }
 
-        /* 倒數跑條樣式 */
         #countdown-container {
             position: fixed;
             bottom: 0;
@@ -82,8 +82,7 @@
         #countdown-bar {
             width: 100%;
             height: 100%;
-            background-color: #28a745; /* 綠色 */
-            width: 100%;
+            background-color: #28a745;
         }
 
         #yt-player-container { 
@@ -128,7 +127,7 @@
                 <div class="footer-left-group">
                     <div class="btn-row">
                         <div class="new-btn" id="extra-btn-1" title="倒計時"><i class="fas fa-clock"></i></div>
-                        <div class="new-btn" id="extra-btn-2" title="拐杖模式"><i class="fas fa-person-walking-with-cane"></i></div>
+                        <div class="new-btn" id="extra-btn-2" title="敬老模式"><i class="fas fa-person-walking-with-cane"></i></div>
                         <div class="new-btn" id="extra-btn-3" title="隱藏資訊"><i class="fas fa-eye-slash"></i></div>
                     </div>
                     <div class="btn-row">
@@ -156,9 +155,7 @@
         </div>
     </div>
 
-    <!-- 倒數跑條 HTML -->
     <div id="countdown-container"><div id="countdown-bar"></div></div>
-
     <div id="yt-player-container"><div id="player"></div></div>
 
     <script>
@@ -381,49 +378,78 @@
 
         let currentList = [], currentIndex = 0, player, isPlayerReady = false, stopTimer;
         let currentMode = 'rand'; 
+        let challengeCounter = 0; // 用於計數第幾次挑戰
+        let currentChallengeSong = null; // 當前正在進行的歌曲對象
 
         function switchMode(mode) {
             currentMode = mode;
             $(".mode-btn").removeClass("active");
-            resetCountdown(); // 切換模式時重置跑條
+            resetCountdown();
             const selectedAreas = [];
             $(".area-checkbox:checked").each(function() { selectedAreas.push($(this).val()); });
+            
             if (selectedAreas.length === 0) { alert("請至少勾選一個區域！"); return; }
+            
             let filteredSongs = [];
             ["A", "B", "C", "D", "E", "F"].forEach(area => {
                 if (selectedAreas.includes(area) && songData[area]) {
                     filteredSongs = filteredSongs.concat(songData[area]);
                 }
             });
+            
             if (filteredSongs.length === 0) { alert("所選區域目前沒有歌單！"); return; }
             if (mode === 'seq') { $("#btn-seq").addClass("active"); currentList = filteredSongs; }
             else { $("#btn-rand").addClass("active"); currentList = [...filteredSongs].sort(() => Math.random() - 0.5); }
+            
             currentIndex = 0;
+            challengeCounter = 0; // 重置計數器
             renderSong();
         }
 
+        // 核心顯示與歌曲選取邏輯
         function renderSong() {
             if (currentList.length === 0 || !currentList[currentIndex]) return;
-            const song = currentList[currentIndex];
-            const isMasked = $("#extra-btn-3").hasClass("active");
-            resetCountdown(); // 更換歌曲時隱藏跑條
+            
+            challengeCounter++; // 每次準備新歌，計數加 1
+            resetCountdown();
 
+            // 判斷是否為敬老模式生效時機（每 4 首）
+            const isSeniorMode = $("#extra-btn-2").hasClass("active");
+            if (isSeniorMode && challengeCounter % 4 === 0) {
+                // 找出最前面兩區
+                const activeAreas = [];
+                ["A", "B", "C", "D", "E", "F"].forEach(v => {
+                    if ($("#area-" + v.toLowerCase()).is(":checked")) activeAreas.push(v);
+                });
+                const seniorPoolAreas = activeAreas.slice(0, 2);
+                let seniorPool = [];
+                seniorPoolAreas.forEach(area => { seniorPool = seniorPool.concat(songData[area]); });
+                
+                // 從敬老池隨機選一首
+                currentChallengeSong = seniorPool[Math.floor(Math.random() * seniorPool.length)];
+                console.log("敬老模式觸發：第 " + challengeCounter + " 首，抽取自 " + seniorPoolAreas.join(", "));
+            } else {
+                currentChallengeSong = currentList[currentIndex];
+            }
+
+            const isMasked = $("#extra-btn-3").hasClass("active");
             $("#song-display").css("opacity", 0);
+            
             setTimeout(() => {
-                let displaySinger = song.singer;
-                let displayTitle = song.title;
+                let displaySinger = currentChallengeSong.singer;
+                let displayTitle = currentChallengeSong.title;
                 if (isMasked) {
-                    displaySinger = "*".repeat(song.singer.length);
-                    const bracketIdx = song.title.lastIndexOf("(");
+                    displaySinger = "*".repeat(currentChallengeSong.singer.length);
+                    const bracketIdx = currentChallengeSong.title.lastIndexOf("(");
                     if (bracketIdx !== -1) {
-                        const mainPart = song.title.substring(0, bracketIdx);
-                        const bracketPart = song.title.substring(bracketIdx);
+                        const mainPart = currentChallengeSong.title.substring(0, bracketIdx);
+                        const bracketPart = currentChallengeSong.title.substring(bracketIdx);
                         displayTitle = "*".repeat(mainPart.length) + bracketPart;
                     } else {
-                        displayTitle = "*".repeat(song.title.length);
+                        displayTitle = "*".repeat(currentChallengeSong.title.length);
                     }
                 }
-                $("#display-info").text(song.year + " - " + displaySinger);
+                $("#display-info").text(currentChallengeSong.year + " - " + displaySinger);
                 $("#display-title").text(displayTitle);
                 $("#song-display").css("opacity", 1);
             }, 200);
@@ -433,18 +459,12 @@
             $("#status-msg").text("播放器就緒！").css("color", "#00AEEF");
         }
 
-        // 跑條邏輯
         function startCountdown() {
             if (!$("#extra-btn-1").hasClass("active")) return;
-            
             const $container = $("#countdown-container");
             const $bar = $("#countdown-bar");
-
-            // 確保先重置狀態
             $container.hide();
             $bar.stop().css({ width: '100%' });
-
-            // 顯示並開始動畫 (15秒)
             $container.show();
             $bar.animate({ width: '0%' }, 15000, "linear", function() {
                 $container.fadeOut();
@@ -458,6 +478,14 @@
             $container.hide();
         }
 
+        // 檢查敬老模式可用性
+        function checkSeniorModeStatus() {
+            const count = $(".area-checkbox:checked").length;
+            if (count < 3) {
+                $("#extra-btn-2").removeClass("active");
+            }
+        }
+
         window.onYouTubeIframeAPIReady = function() {
             player = new YT.Player('player', {
                 height: '200', width: '200',
@@ -465,12 +493,11 @@
                 events: {
                     'onReady': function() { isPlayerReady = true; $("#status-msg").text("播放器就緒！"); },
                     'onStateChange': function(event) {
-                        if (event.data == 1) { // 正在播放
-                            resetCountdown(); // 每次開始播放，先收起跑條
+                        if (event.data == 1) { 
+                            resetCountdown();
                             clearTimeout(stopTimer);
                             stopTimer = setTimeout(() => { 
                                 player.pauseVideo(); 
-                                // 音樂停下的瞬間，觸發跑條
                                 startCountdown();
                             }, 5000);
                         }
@@ -487,35 +514,56 @@
             
             $("#btn-seq").click(() => switchMode('seq'));
             $("#btn-rand").click(() => switchMode('rand'));
-            $(".area-checkbox").change(function() { switchMode(currentMode); });
+            
+            $(".area-checkbox").change(function() { 
+                checkSeniorModeStatus();
+                switchMode(currentMode); 
+            });
 
             $(".new-btn").click(function() {
+                if (this.id === "extra-btn-2") {
+                    // 檢查是否達 3 區
+                    if ($(".area-checkbox:checked").length < 3) return;
+                }
+
                 $(this).toggleClass("active");
+                
                 if (this.id === "extra-btn-3") {
                     renderSong();
                 }
-                // 如果手動關掉時鐘按鈕，立即收起跑條
                 if (this.id === "extra-btn-1" && !$(this).hasClass("active")) {
                     resetCountdown();
                 }
             });
 
             $("#play-btn").click(function() {
-                if (!isPlayerReady) return;
-                const song = currentList[currentIndex];
-                if (!song || !song.ytId) { alert("尚未填入 ID！"); return; }
-                resetCountdown(); // 手動點播放也要重置跑條
+                if (!isPlayerReady || !currentChallengeSong) return;
+                resetCountdown();
                 player.playVideo(); 
                 player.unMute(); 
                 player.setVolume(100);
-                player.loadVideoById({ videoId: song.ytId, startSeconds: song.start });
+                player.loadVideoById({ 
+                    videoId: currentChallengeSong.ytId, 
+                    startSeconds: currentChallengeSong.start 
+                });
             });
 
             $("#next-btn").click(function() {
-                if (currentIndex < currentList.length - 1) { currentIndex++; renderSong(); }
-                else { alert("清單結束，將重新開始。"); switchMode(currentMode); }
+                if (currentIndex < currentList.length - 1) { 
+                    currentIndex++; 
+                    renderSong(); 
+                } else { 
+                    alert("清單結束，將重新開始。"); 
+                    switchMode(currentMode); 
+                }
             });
-            $("#prev-btn").click(function() { if (currentIndex > 0) { currentIndex--; renderSong(); } });
+            
+            $("#prev-btn").click(function() { 
+                if (currentIndex > 0) { 
+                    currentIndex--; 
+                    renderSong(); 
+                } 
+            });
         });
 
         var tag = document.createElement('script');
