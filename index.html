@@ -23,7 +23,19 @@
         body { background-color: #000; color: #fff; font-family: "Microsoft JhengHei", sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; user-select: none; transition: background-color 0.5s ease; }
         .game-container { text-align: center; width: 100%; max-width: 700px; padding: 20px; position: relative; z-index: 10; }
         
-        #status-msg { color: #00AEEF; font-size: 20px; margin-bottom: 20px; min-height: 28px; font-weight: bold; letter-spacing: 2px; }
+        /* 用戶名稱移至左上角固定位置 */
+        #status-msg { 
+            position: fixed;
+            top: 25px;
+            left: 20px;
+            color: #00AEEF; 
+            font-size: 20px; 
+            font-weight: bold; 
+            letter-spacing: 2px; 
+            z-index: 1000;
+        }
+        
+        .repurposed-space { min-height: 28px; margin-bottom: 20px; }
         
         #song-display { 
             color: #FF3B30; 
@@ -69,37 +81,34 @@
 
         #menu-icon { position: fixed; top: 20px; right: 20px; font-size: 35px; color: #ff3b30; cursor: pointer; z-index: 1000; }
 
-        /* 彈窗基礎 */
+        /* 彈窗樣式 */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; z-index: 2000;
         }
         .modal-content {
             background: #1a1a1a; border: 2px solid #333; padding: 25px; border-radius: 15px;
-            width: 85%; max-width: 420px; text-align: center; color: white;
+            width: 85%; max-width: 350px; text-align: center; color: white;
+            display: flex; flex-direction: column; align-items: center;
         }
         .modal-btn {
             background: #28a745; color: white; border: none; padding: 12px 20px;
-            font-size: 18px; border-radius: 8px; cursor: pointer; margin: 8px; transition: 0.2s; min-width: 120px;
+            font-size: 18px; border-radius: 8px; cursor: pointer; margin: 8px 0;
+            transition: 0.2s; width: 90%;
         }
         .modal-btn:hover { opacity: 0.8; }
         .modal-btn.cancel { background: #666; }
 
-        /* B 彈窗 */
         .modal-input {
             width: 80%; padding: 10px; margin: 15px 0; border-radius: 5px; border: 1px solid #444;
             background: #000; color: #fff; font-size: 18px; text-align: center;
         }
-        .color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
+        .color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; width: 100%; }
         .color-box { aspect-ratio: 1; border-radius: 5px; cursor: pointer; border: 2px solid transparent; }
         .color-box.selected { border-color: white; box-shadow: 0 0 8px #fff; }
 
-        /* C 彈窗 (記錄列表) */
-        .record-list { margin: 20px 0; display: flex; flex-direction: column; gap: 10px; }
-        .record-item {
-            display: flex; align-items: center; justify-content: space-between;
-            background: #2a2a2a; padding: 12px 15px; border-radius: 10px; border: 1px solid #444;
-        }
+        .record-list { margin: 20px 0; display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        .record-item { display: flex; align-items: center; justify-content: space-between; background: #2a2a2a; padding: 12px 15px; border-radius: 10px; border: 1px solid #444; }
         .record-info { display: flex; align-items: center; gap: 12px; cursor: pointer; flex-grow: 1; text-align: left; }
         .record-color-preview { width: 25px; height: 25px; border-radius: 50%; border: 1px solid #fff; }
         .record-name { font-size: 18px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
@@ -119,6 +128,8 @@
 </head>
 <body>
 
+    <div id="status-msg" class="text-outline"></div>
+
     <i class="fas fa-bars text-outline" id="menu-icon"></i>
 
     <!-- A 彈窗：選單 -->
@@ -127,7 +138,8 @@
             <h2 style="margin-bottom: 20px;">MENU</h2>
             <button class="modal-btn" id="go-to-b">建立記錄</button>
             <button class="modal-btn" id="go-to-c" style="background: #007bff;">讀取記錄</button>
-            <br>
+            <button class="modal-btn" id="menu-toggle-senior" style="background: #f39c12;">敬老模式(開)</button>
+            <button class="modal-btn" id="menu-toggle-countdown" style="background: #9b59b6;">倒數模式(開)</button>
             <button class="modal-btn cancel" onclick="$('#modal-a').fadeOut()">關閉</button>
         </div>
     </div>
@@ -148,22 +160,21 @@
     <div id="modal-c" class="modal-overlay">
         <div class="modal-content">
             <h3>讀取過往記錄</h3>
-            <div class="record-list" id="record-display-list">
-                <!-- 記錄動態插入 -->
-            </div>
+            <div class="record-list" id="record-display-list"></div>
             <button class="modal-btn cancel" onclick="$('#modal-c').fadeOut()">返回</button>
         </div>
     </div>
 
     <div class="game-container">
-        <div id="status-msg" class="text-outline"></div>
+        <div class="repurposed-space"></div>
         <div id="song-display" class="text-outline">
             <div id="display-info">點擊開始進行挑戰</div>
             <div id="display-title" class="song-title">歌曲名稱</div>
         </div>
 
         <div class="controls">
-            <div class="btn-box" id="prev-btn"><i class="fas fa-step-backward icon text-outline"></i></div>
+            <!-- 原上一首按鈕處目前空著 -->
+            <div class="btn-box" id="prev-btn"></div>
             <div class="btn-box" id="play-btn"><i class="fas fa-play icon text-outline" style="font-size: 65px;"></i></div>
             <div class="btn-box" id="next-btn"><i class="fas fa-step-forward icon text-outline"></i></div>
         </div>
@@ -270,7 +281,7 @@
                 { year: 1988, singer: "賀一航", title: "媽媽請你不通痛(台)", ytId: "ZU_Rg3NOIqY", start: 82 },
                 { year: 1990, singer: "王瑞霞", title: "絕情雨(台)", ytId: "Y_sypl1xnDw", start: 60 },
                 { year: 1981, singer: "鳳飛飛", title: "愛你在心口難開", ytId: "FhuzROZbip0", start: 76 },
-                { year: 1981, singer: "蔡琴", title: "被遺忘的時光", ytId: "qXN4xjlpWxw", start:9 },
+                { year: 1981, singer: "蔡琴", title: "被遺忘的時光", ytId: "qXN4xjlpWxw", start: 9 },
                 { year: 1982, singer: "羅大佑", title: "鹿港小鎮", ytId: "l0STVc3YoR0", start: 68 },
                 { year: 1982, singer: "丘丘合唱團(娃娃)", title: "就在今夜", ytId: "WzUSR8hreuk", start: 46 },
                 { year: 1982, singer: "潘越雲", title: "野百合也有春天", ytId: "n3steo3LbkQ", start: 37 },
@@ -332,7 +343,7 @@
                 { year: 1993, singer: "謝金燕", title: "含淚跳恰恰(台)", ytId: "_9JJx5EsOI4", start: 91 },
                 { year: 1993, singer: "陳雷", title: "往事就是我的安慰(台)", ytId: "CuNhYt3wvfE", start: 82 },
                 { year: 1994, singer: "吳宗憲", title: "真心換絕情(台)", ytId: "zQCPNxUAgFc", start: 101 }
-            ], 
+            ],
             "D": [
                 { year: 2004, singer: "周杰倫", title: "爸 我回來了", ytId: "kbLjLQPaQmU", start: 74 },
                 { year: 2001, singer: "周杰倫", title: "忍者", ytId: "CtQhWZ8m-ws", start: 44 },
@@ -374,7 +385,7 @@
                 { year: 2006, singer: "蕭煌奇", title: "阿嬤的話(台)", ytId: "A83IJhXR7sY", start: 105 },
                 { year: 2008, singer: "江蕙", title: "甲你攬牢牢(台)", ytId: "yJ3mr8yN4_Y", start: 90.5 },
                 { year: 2009, singer: "蕭煌奇", title: "心裡有針(台)", ytId: "jgWMxyeJE8I", start: 73.5 }
-            ], 
+            ],
             "E": [
                 { year: 2011, singer: "陳勢安", title: "天后", ytId: "dvW1rPD0-nQ", start: 73 },
                 { year: 2011, singer: "謝和弦", title: "牽心萬苦", ytId: "CRBJCjSlAgM", start: 55 },
@@ -417,90 +428,153 @@
                 { year: 2019, singer: "茄子蛋", title: "Happy!!! 運將情歌(台)", ytId: "zKxTnkgcBlY", start: 185 }
             ],
             "F": [
-                { year: 2021, singer: "動力火車", title: "我很好騙", ytId: "efmtFFnZOGA", start: 63 }, 
+                { year: 2021, singer: "動力火車", title: "我很好騙", ytId: "efmtFFnZOGA", start: 63 },
                 { year: 2024, singer: "邱軍", title: "運轉人生(台)", ytId: "n18Vw5VT5UE", start: 47 }
             ]
         };
 
-        // --- 全域變數與記錄邏輯 ---
-        let currentList = [], currentIndex = 0, player, isPlayerReady = false, stopTimer;
+        // --- 全域變數 ---
+        let currentIndex = 0, player, isPlayerReady = false, stopTimer;
         let currentMode = 'rand'; 
-        let challengeCounter = 0;
-        let currentChallengeSong = null;
         let selectedBgColor = "rgb(255, 255, 0)"; 
-
-        // 記錄相關
+        let selectedAreaKeys = [], currentAreaCycle = [], cyclePointer = 0, nonOldestCounter = 0;
+        let sessionPlayedSongs = [];
         let records = JSON.parse(localStorage.getItem('guess_song_records')) || [];
-        let activeRecordIndex = -1; // 當前正在使用的記錄索引
+        let activeRecordIndex = -1, currentChallengeSong = null;
 
-        function saveRecordsToLocal() {
-            localStorage.setItem('guess_song_records', JSON.stringify(records));
+        function saveRecordsToLocal() { localStorage.setItem('guess_song_records', JSON.stringify(records)); }
+
+        // --- 核心邏輯：隔離過濾 ---
+        function getUnplayedFromArea(areaKey) {
+            const pool = songData[areaKey] || [];
+            
+            // 嚴格隔離邏輯：如果有讀取記錄，就只認記錄；否則只認暫存。
+            let blackList = (activeRecordIndex !== -1) ? records[activeRecordIndex].playedSongs : sessionPlayedSongs;
+            
+            return pool.filter(s => !blackList.includes(s.ytId));
         }
 
-        // --- 核心顯示邏輯 ---
-        function renderSong() {
-            if (currentList.length === 0) {
-                $("#display-info").text("此條件下已無新歌可猜！");
-                $("#display-title").text("請讀取其他記錄或重新開始");
-                return;
-            }
-            if (!currentList[currentIndex]) return;
+        function getNextRandomSong() {
+            if (selectedAreaKeys.length === 0) return null;
 
-            challengeCounter++;
-            resetCountdown();
-
+            const seniorAreas = selectedAreaKeys.slice(0, 2); 
             const isSeniorMode = $("#extra-btn-2").hasClass("active");
-            if (isSeniorMode && challengeCounter % 4 === 0) {
-                const activeAreas = [];
-                ["A", "B", "C", "D", "E", "F"].forEach(v => {
-                    if ($("#area-" + v.toLowerCase()).is(":checked")) activeAreas.push(v);
-                });
-                const seniorPoolAreas = activeAreas.slice(0, 2);
-                let seniorPool = [];
-                seniorPoolAreas.forEach(area => { seniorPool = seniorPool.concat(songData[area]); });
-                
-                // 也要過濾掉已播放過的
-                if (activeRecordIndex !== -1) {
-                    const played = records[activeRecordIndex].playedSongs;
-                    seniorPool = seniorPool.filter(s => !played.includes(s.ytId));
-                }
+            let targetArea = "";
+            let isSeniorTrigger = false;
 
+            if (isSeniorMode && nonOldestCounter >= 3) {
+                // 強制插播老歌
+                let seniorPool = [];
+                seniorAreas.forEach(k => { seniorPool = seniorPool.concat(getUnplayedFromArea(k)); });
+                
                 if (seniorPool.length > 0) {
-                    currentChallengeSong = seniorPool[Math.floor(Math.random() * seniorPool.length)];
+                    targetArea = seniorAreas[Math.floor(Math.random() * seniorAreas.length)];
+                    isSeniorTrigger = true;
                 } else {
-                    currentChallengeSong = currentList[currentIndex];
+                    targetArea = currentAreaCycle[cyclePointer];
                 }
             } else {
-                currentChallengeSong = currentList[currentIndex];
+                targetArea = currentAreaCycle[cyclePointer];
+                
+                // 檢查該區是否還有新歌
+                let pool = getUnplayedFromArea(targetArea);
+                if (pool.length === 0) {
+                    let attempts = 0;
+                    while (pool.length === 0 && attempts < selectedAreaKeys.length) {
+                        cyclePointer = (cyclePointer + 1) % currentAreaCycle.length;
+                        targetArea = currentAreaCycle[cyclePointer];
+                        pool = getUnplayedFromArea(targetArea);
+                        attempts++;
+                    }
+                }
             }
 
-            // 如果有正在使用的記錄，將這首歌標記為已聽過
-            if (activeRecordIndex !== -1 && currentChallengeSong) {
+            const finalPool = getUnplayedFromArea(targetArea);
+            if (finalPool.length === 0) return null; // 全部勾選區域的新歌都聽完了
+
+            const pickedSong = finalPool[Math.floor(Math.random() * finalPool.length)];
+
+            // 計數與指針更新
+            if (seniorAreas.includes(targetArea)) {
+                nonOldestCounter = 0;
+            } else {
+                nonOldestCounter++;
+            }
+
+            cyclePointer = (cyclePointer + 1) % currentAreaCycle.length;
+            if (cyclePointer === 0) {
+                currentAreaCycle = [...selectedAreaKeys].sort(() => Math.random() - 0.5);
+            }
+
+            // Console Log
+            if (isSeniorTrigger) console.log("觸發敬老模式");
+            console.log(targetArea + "區");
+
+            return pickedSong;
+        }
+
+        function renderSong() {
+            resetCountdown();
+
+            if (currentMode === 'rand') {
+                currentChallengeSong = getNextRandomSong();
+            } else {
+                // 依序播放隔離邏輯
+                let fullList = [];
+                selectedAreaKeys.forEach(k => { fullList = fullList.concat(songData[k]); });
+                fullList = fullList.filter(s => {
+                    if (activeRecordIndex !== -1) {
+                        return !records[activeRecordIndex].playedSongs.includes(s.ytId);
+                    } else {
+                        return !sessionPlayedSongs.includes(s.ytId);
+                    }
+                });
+                currentChallengeSong = fullList[0] || null;
+                
+                // 依序模式打印
+                if (currentChallengeSong) {
+                    for (let area in songData) {
+                        if (songData[area].find(s => s.ytId === currentChallengeSong.ytId)) {
+                            console.log(area + "區");
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!currentChallengeSong) {
+                $("#display-info").text("此條件下已無新歌！");
+                $("#display-title").text("請讀取其他記錄或重新整理");
+                return;
+            }
+
+            // 寫入對應名單
+            if (activeRecordIndex !== -1) {
                 if (!records[activeRecordIndex].playedSongs.includes(currentChallengeSong.ytId)) {
                     records[activeRecordIndex].playedSongs.push(currentChallengeSong.ytId);
                     saveRecordsToLocal();
+                }
+            } else {
+                if (!sessionPlayedSongs.includes(currentChallengeSong.ytId)) {
+                    sessionPlayedSongs.push(currentChallengeSong.ytId);
                 }
             }
 
             const isMasked = $("#extra-btn-3").hasClass("active");
             $("#song-display").css("opacity", 0);
-            
             setTimeout(() => {
-                let displaySinger = currentChallengeSong.singer;
-                let displayTitle = currentChallengeSong.title;
+                let s = currentChallengeSong.singer, t = currentChallengeSong.title;
                 if (isMasked) {
-                    displaySinger = "*".repeat(currentChallengeSong.singer.length);
-                    const bracketIdx = currentChallengeSong.title.lastIndexOf("(");
-                    if (bracketIdx !== -1) {
-                        const mainPart = currentChallengeSong.title.substring(0, bracketIdx);
-                        const bracketPart = currentChallengeSong.title.substring(bracketIdx);
-                        displayTitle = "*".repeat(mainPart.length) + bracketPart;
+                    s = "*".repeat(s.length);
+                    const bIdx = t.lastIndexOf("(");
+                    if (bIdx !== -1) {
+                        t = "*".repeat(t.substring(0, bIdx).length) + t.substring(bIdx);
                     } else {
-                        displayTitle = "*".repeat(currentChallengeSong.title.length);
+                        t = "*".repeat(t.length);
                     }
                 }
-                $("#display-info").text(currentChallengeSong.year + " - " + displaySinger);
-                $("#display-title").text(displayTitle);
+                $("#display-info").text(currentChallengeSong.year + " - " + s);
+                $("#display-title").text(t);
                 $("#song-display").css("opacity", 1);
             }, 200);
 
@@ -508,124 +582,77 @@
             clearTimeout(stopTimer);
         }
 
-        // --- 彈窗與 UI 邏輯 ---
+        // --- 選單與初始化 ---
+        function syncMenuText() {
+            const isSenior = $("#extra-btn-2").hasClass("active");
+            const isCountdown = $("#extra-btn-1").hasClass("active");
+            $("#menu-toggle-senior").text(`敬老模式(${isSenior ? '關' : '開'})`);
+            $("#menu-toggle-countdown").text(`倒數模式(${isCountdown ? '關' : '開'})`);
+        }
+
         function initColorPicker() {
-            const colors = [
-                "rgb(255, 255, 0)",   "rgb(255, 165, 0)", "rgb(255, 140, 0)", "rgb(255, 215, 0)",
-                "rgb(50, 205, 50)",   "rgb(0, 128, 0)",   "rgb(34, 139, 34)", "rgb(173, 255, 47)",
-                "rgb(128, 128, 0)",   "rgb(189, 183, 107)", "rgb(139, 69, 19)", "rgb(210, 105, 30)",
-                "rgb(255, 192, 203)", "rgb(255, 105, 180)", "rgb(218, 112, 214)", "rgb(128, 128, 128)"
-            ];
-            const $picker = $("#color-picker");
-            $picker.empty();
+            const colors = ["rgb(255, 255, 0)", "rgb(255, 165, 0)", "rgb(255, 140, 0)", "rgb(255, 215, 0)", "rgb(50, 205, 50)", "rgb(0, 128, 0)", "rgb(34, 139, 34)", "rgb(173, 255, 47)", "rgb(128, 128, 0)", "rgb(189, 183, 107)", "rgb(139, 69, 19)", "rgb(210, 105, 30)", "rgb(255, 192, 203)", "rgb(255, 105, 180)", "rgb(218, 112, 214)", "rgb(128, 128, 128)"];
+            const $picker = $("#color-picker").empty();
             colors.forEach(c => {
                 const $box = $("<div>").addClass("color-box").css("background-color", c);
                 if(c === selectedBgColor) $box.addClass("selected");
-                $box.click(function() {
-                    $(".color-box").removeClass("selected");
-                    $(this).addClass("selected");
-                    selectedBgColor = c;
-                });
+                $box.click(function() { $(".color-box").removeClass("selected"); $(this).addClass("selected"); selectedBgColor = c; });
                 $picker.append($box);
             });
         }
 
-        // 渲染 C 彈窗列表
         function renderRecordList() {
-            const $list = $("#record-display-list");
-            $list.empty();
-            if (records.length === 0) {
-                $list.append("<p style='color:#888;'>尚未有任何記錄</p>");
-                return;
-            }
+            const $list = $("#record-display-list").empty();
+            if (records.length === 0) { $list.append("<p style='color:#888;'>尚未有任何記錄</p>"); return; }
             records.forEach((rec, index) => {
-                const $item = $(`
-                    <div class="record-item">
-                        <div class="record-info" data-index="${index}">
-                            <div class="record-color-preview" style="background:${rec.color}"></div>
-                            <div class="record-name text-outline">${rec.name}</div>
-                        </div>
-                        <i class="fas fa-trash-can record-del-btn" data-index="${index}"></i>
-                    </div>
-                `);
+                const $item = $(`<div class="record-item"><div class="record-info" data-index="${index}"><div class="record-color-preview" style="background:${rec.color}"></div><div class="record-name text-outline">${rec.name}</div></div><i class="fas fa-trash-can record-del-btn" data-index="${index}"></i></div>`);
                 $list.append($item);
             });
-
-            // 點擊讀取
-            $(".record-info").click(function() {
-                const idx = $(this).data("index");
-                loadRecord(idx);
-                $("#modal-c").fadeOut();
-            });
-
-            // 點擊刪除
+            $(".record-info").click(function() { loadRecord($(this).data("index")); $("#modal-c").fadeOut(); });
             $(".record-del-btn").click(function(e) {
                 e.stopPropagation();
                 const idx = $(this).data("index");
-                if (confirm(`確定要刪除「${records[idx].name}」的記錄嗎？`)) {
+                if (confirm(`確定要刪除「${records[idx].name}」嗎？`)) {
                     records.splice(idx, 1);
-                    if (activeRecordIndex === idx) activeRecordIndex = -1;
-                    else if (activeRecordIndex > idx) activeRecordIndex--;
-                    saveRecordsToLocal();
-                    renderRecordList();
+                    if (activeRecordIndex === idx) activeRecordIndex = -1; else if (activeRecordIndex > idx) activeRecordIndex--;
+                    saveRecordsToLocal(); renderRecordList();
                 }
             });
         }
 
         function loadRecord(index) {
+            sessionPlayedSongs = []; // 讀取記錄，清空遊客暫存
             activeRecordIndex = index;
             const rec = records[index];
             $("#status-msg").text(rec.name);
             const transparentColor = rec.color.replace("rgb", "rgba").replace(")", ", 0.5)");
             $("body").css("background-color", transparentColor);
             selectedBgColor = rec.color;
-            switchMode(currentMode); // 重新載入歌單(會自動過濾已聽過的)
+            switchMode(currentMode);
         }
 
         function switchMode(mode) {
-            currentMode = mode;
-            $(".mode-btn").removeClass("active");
-            resetCountdown();
-            const selectedAreas = [];
-            $(".area-checkbox:checked").each(function() { selectedAreas.push($(this).val()); });
-            if (selectedAreas.length === 0) return;
+            currentMode = mode; $(".mode-btn").removeClass("active"); resetCountdown();
+            selectedAreaKeys = [];
+            ["A", "B", "C", "D", "E", "F"].forEach(v => { if ($("#area-" + v.toLowerCase()).is(":checked")) selectedAreaKeys.push(v); });
+            if (selectedAreaKeys.length === 0) return;
 
-            let filteredSongs = [];
-            ["A", "B", "C", "D", "E", "F"].forEach(area => {
-                if (selectedAreas.includes(area) && songData[area]) {
-                    filteredSongs = filteredSongs.concat(songData[area]);
-                }
-            });
-
-            // 關鍵：過濾掉該用戶已播放過的歌
-            if (activeRecordIndex !== -1) {
-                const played = records[activeRecordIndex].playedSongs;
-                filteredSongs = filteredSongs.filter(s => !played.includes(s.ytId));
+            if (mode === 'rand') {
+                $("#btn-rand").addClass("active");
+                currentAreaCycle = [...selectedAreaKeys].sort(() => Math.random() - 0.5);
+                cyclePointer = 0; nonOldestCounter = 0;
+            } else {
+                $("#btn-seq").addClass("active");
             }
-
-            if (mode === 'seq') { $("#btn-seq").addClass("active"); currentList = filteredSongs; }
-            else { $("#btn-rand").addClass("active"); currentList = [...filteredSongs].sort(() => Math.random() - 0.5); }
-            
-            currentIndex = 0;
-            challengeCounter = 0;
             renderSong();
         }
 
+        function resetCountdown() { $("#countdown-bar").stop().css({ width: '100%' }); $("#countdown-container").hide(); }
         function startCountdown() {
             if (!$("#extra-btn-1").hasClass("active")) return;
-            const $container = $("#countdown-container");
-            const $bar = $("#countdown-bar");
-            $container.hide();
-            $bar.stop().css({ width: '100%' });
-            $container.show();
+            const $container = $("#countdown-container"), $bar = $("#countdown-bar");
+            $container.hide(); $bar.stop().css({ width: '100%' }); $container.show();
             $bar.animate({ width: '0%' }, 15000, "linear", function() { $container.fadeOut(); });
-        }
-
-        function resetCountdown() {
-            const $container = $("#countdown-container");
-            const $bar = $("#countdown-bar");
-            $bar.stop().css({ width: '100%' });
-            $container.hide();
         }
 
         window.onYouTubeIframeAPIReady = function() {
@@ -635,71 +662,44 @@
                 events: {
                     'onReady': function() { isPlayerReady = true; },
                     'onStateChange': function(event) {
-                        if (event.data == 1) { 
-                            resetCountdown();
-                            clearTimeout(stopTimer);
-                            stopTimer = setTimeout(() => { player.pauseVideo(); startCountdown(); }, 5000);
-                        }
+                        if (event.data == 1) { resetCountdown(); clearTimeout(stopTimer); stopTimer = setTimeout(() => { player.pauseVideo(); startCountdown(); }, 5000); }
                     }
                 }
             });
         };
 
         $(document).ready(function() {
-            initColorPicker();
-            switchMode('rand');
+            initColorPicker(); switchMode('rand');
             
-            $("#menu-icon").click(() => $("#modal-a").fadeIn().css("display","flex"));
-            
-            $("#go-to-b").click(() => {
-                $("#modal-a").hide();
-                $("#modal-b").fadeIn().css("display","flex");
-                initColorPicker();
-            });
-
-            $("#go-to-c").click(() => {
-                $("#modal-a").hide();
-                renderRecordList();
-                $("#modal-c").fadeIn().css("display","flex");
-            });
-
+            $("#menu-icon").click(() => { syncMenuText(); $("#modal-a").fadeIn().css("display","flex"); });
+            $("#go-to-b").click(() => { $("#modal-a").hide(); $("#modal-b").fadeIn().css("display","flex"); initColorPicker(); });
+            $("#go-to-c").click(() => { $("#modal-a").hide(); renderRecordList(); $("#modal-c").fadeIn().css("display","flex"); });
             $("#cancel-b").click(() => $("#modal-b").fadeOut());
+
+            $("#menu-toggle-senior").click(function() { $("#extra-btn-2").click(); syncMenuText(); });
+            $("#menu-toggle-countdown").click(function() { $("#extra-btn-1").click(); syncMenuText(); });
 
             $("#confirm-b").click(() => {
                 const name = $("#user-name-input").val().trim();
                 if (!name) { alert("請輸入用戶名稱！"); return; }
                 
-                // 建立新記錄物件
-                const newRec = {
-                    name: name,
-                    color: selectedBgColor,
-                    playedSongs: []
-                };
+                sessionPlayedSongs = []; // 建立記錄，清空遊客暫存
 
-                // FIFO 邏輯：滿 4 條覆蓋最舊(第一條)
-                if (records.length >= 4) {
-                    records.shift(); 
-                }
-                records.push(newRec);
-                activeRecordIndex = records.length - 1;
-                saveRecordsToLocal();
+                const newRec = { name: name, color: selectedBgColor, playedSongs: [] };
+                if (records.length >= 4) records.shift();
+                records.push(newRec); activeRecordIndex = records.length - 1; saveRecordsToLocal();
 
                 $("#status-msg").text(name);
                 const transparentColor = selectedBgColor.replace("rgb", "rgba").replace(")", ", 0.5)");
                 $("body").css("background-color", transparentColor);
                 
                 $("#modal-b").fadeOut();
-                switchMode(currentMode); // 刷新歌單
+                switchMode(currentMode);
             });
 
             $("#btn-seq").click(() => switchMode('seq'));
             $("#btn-rand").click(() => switchMode('rand'));
-            
-            $(".area-checkbox").change(function() { 
-                const count = $(".area-checkbox:checked").length;
-                if (count < 3) $("#extra-btn-2").removeClass("active");
-                switchMode(currentMode); 
-            });
+            $(".area-checkbox").change(function() { if ($(".area-checkbox:checked").length < 3) $("#extra-btn-2").removeClass("active"); switchMode(currentMode); });
 
             $(".new-btn").click(function() {
                 if (this.id === "extra-btn-2" && $(".area-checkbox:checked").length < 3) return;
@@ -710,16 +710,13 @@
 
             $("#play-btn").click(function() {
                 if (!isPlayerReady || !currentChallengeSong) return;
-                resetCountdown();
-                player.playVideo(); player.unMute(); player.setVolume(100);
+                resetCountdown(); player.playVideo(); player.unMute(); player.setVolume(100);
                 player.loadVideoById({ videoId: currentChallengeSong.ytId, startSeconds: currentChallengeSong.start });
             });
 
             $("#next-btn").click(function() {
-                if (currentIndex < currentList.length - 1) { currentIndex++; renderSong(); }
-                else { alert("清單結束或已全部猜完！"); switchMode(currentMode); }
+                renderSong();
             });
-            $("#prev-btn").click(function() { if (currentIndex > 0) { currentIndex--; renderSong(); } });
         });
 
         var tag = document.createElement('script');
