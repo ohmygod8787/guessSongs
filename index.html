@@ -34,6 +34,19 @@
             letter-spacing: 2px; 
             z-index: 1000;
         }
+
+        /* 頂部置中計數器樣式 */
+        #song-counter {
+            position: fixed;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00AEEF;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            z-index: 1000;
+        }
         
         .repurposed-space { min-height: 28px; margin-bottom: 20px; }
         
@@ -116,6 +129,22 @@
 
         #countdown-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 12px; background: rgba(0, 0, 0, 0.5); display: none; z-index: 1000; }
         #countdown-bar { width: 100%; height: 100%; background-color: #28a745; }
+        /* 紫色跑條專用樣式 */
+        #hourglass-container { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 12px; 
+            background: rgba(0, 0, 0, 0.5); 
+            display: none; 
+            z-index: 1001; /* 確保在最上層 */
+        }
+        #hourglass-bar { 
+            width: 100%; 
+            height: 100%; 
+            background-color: #9b59b6; /* 紫色 */
+        }
 
         #yt-player-container { position: fixed; bottom: 0; right: 0; width: 1px; height: 1px; overflow: hidden; opacity: 0.05; z-index: 9999; pointer-events: none; }
         
@@ -128,8 +157,9 @@
 </head>
 <body>
 
+    <!-- 頂部區 -->
     <div id="status-msg" class="text-outline"></div>
-
+    <div id="song-counter" class="text-outline">0 / 0</div>
     <i class="fas fa-bars text-outline" id="menu-icon"></i>
 
     <!-- A 彈窗：選單 -->
@@ -173,8 +203,9 @@
         </div>
 
         <div class="controls">
-            <!-- 原上一首按鈕處目前空著 -->
-            <div class="btn-box" id="prev-btn"></div>
+            <div class="btn-box" id="prev-btn">
+                <i class="fas fa-hourglass-half icon text-outline" style="font-size: 45px;"></i>
+            </div>
             <div class="btn-box" id="play-btn"><i class="fas fa-play icon text-outline" style="font-size: 65px;"></i></div>
             <div class="btn-box" id="next-btn"><i class="fas fa-step-forward icon text-outline"></i></div>
         </div>
@@ -213,6 +244,7 @@
     </div>
 
     <div id="countdown-container"><div id="countdown-bar"></div></div>
+    <div id="hourglass-container" class="progress-container"><div id="hourglass-bar"></div></div>
     <div id="yt-player-container"><div id="player"></div></div>
 
     <script>
@@ -444,39 +476,51 @@
 
         function saveRecordsToLocal() { localStorage.setItem('guess_song_records', JSON.stringify(records)); }
 
-        // --- 核心邏輯：隔離過濾 ---
+        // --- 計數器邏輯 ---
+        function updateSongCounter() {
+            // 1. 計算選中區域的總曲目數
+            let total = 0;
+            selectedAreaKeys.forEach(k => { total += songData[k].length; });
+
+            // 2. 計算選中區域中「已聽過」的數量
+            let blackList = (activeRecordIndex !== -1) ? records[activeRecordIndex].playedSongs : sessionPlayedSongs;
+            let current = 0;
+            
+            // 遍歷黑名單，檢查該歌是否屬於目前的勾選區域
+            blackList.forEach(ytId => {
+                for (let key of selectedAreaKeys) {
+                    if (songData[key].some(s => s.ytId === ytId)) {
+                        current++;
+                        break; 
+                    }
+                }
+            });
+
+            $("#song-counter").text(`${current} / ${total}`);
+        }
+
+        // --- 核心過濾與隨機邏輯 ---
         function getUnplayedFromArea(areaKey) {
             const pool = songData[areaKey] || [];
-            
-            // 嚴格隔離邏輯：如果有讀取記錄，就只認記錄；否則只認暫存。
             let blackList = (activeRecordIndex !== -1) ? records[activeRecordIndex].playedSongs : sessionPlayedSongs;
-            
             return pool.filter(s => !blackList.includes(s.ytId));
         }
 
         function getNextRandomSong() {
             if (selectedAreaKeys.length === 0) return null;
-
             const seniorAreas = selectedAreaKeys.slice(0, 2); 
             const isSeniorMode = $("#extra-btn-2").hasClass("active");
             let targetArea = "";
             let isSeniorTrigger = false;
 
             if (isSeniorMode && nonOldestCounter >= 3) {
-                // 強制插播老歌
-                let seniorPool = [];
-                seniorAreas.forEach(k => { seniorPool = seniorPool.concat(getUnplayedFromArea(k)); });
-                
+                let seniorPool = []; seniorAreas.forEach(k => seniorPool = seniorPool.concat(getUnplayedFromArea(k)));
                 if (seniorPool.length > 0) {
                     targetArea = seniorAreas[Math.floor(Math.random() * seniorAreas.length)];
                     isSeniorTrigger = true;
-                } else {
-                    targetArea = currentAreaCycle[cyclePointer];
-                }
+                } else { targetArea = currentAreaCycle[cyclePointer]; }
             } else {
                 targetArea = currentAreaCycle[cyclePointer];
-                
-                // 檢查該區是否還有新歌
                 let pool = getUnplayedFromArea(targetArea);
                 if (pool.length === 0) {
                     let attempts = 0;
@@ -489,39 +533,26 @@
                 }
             }
 
-            const finalPool = getUnplayedFromArea(targetArea);
-            if (finalPool.length === 0) return null; // 全部勾選區域的新歌都聽完了
-
+            let finalPool = getUnplayedFromArea(targetArea);
+            if (finalPool.length === 0) return null;
             const pickedSong = finalPool[Math.floor(Math.random() * finalPool.length)];
 
-            // 計數與指針更新
-            if (seniorAreas.includes(targetArea)) {
-                nonOldestCounter = 0;
-            } else {
-                nonOldestCounter++;
-            }
-
+            if (seniorAreas.includes(targetArea)) nonOldestCounter = 0; else nonOldestCounter++;
             cyclePointer = (cyclePointer + 1) % currentAreaCycle.length;
-            if (cyclePointer === 0) {
-                currentAreaCycle = [...selectedAreaKeys].sort(() => Math.random() - 0.5);
-            }
+            if (cyclePointer === 0) currentAreaCycle = [...selectedAreaKeys].sort(() => Math.random() - 0.5);
 
-            // Console Log
             if (isSeniorTrigger) console.log("觸發敬老模式");
             console.log(targetArea + "區");
-
             return pickedSong;
         }
 
         function renderSong() {
             resetCountdown();
-
+            resetHourglass();
             if (currentMode === 'rand') {
                 currentChallengeSong = getNextRandomSong();
             } else {
-                // 依序播放隔離邏輯
-                let fullList = [];
-                selectedAreaKeys.forEach(k => { fullList = fullList.concat(songData[k]); });
+                let fullList = []; selectedAreaKeys.forEach(k => fullList = fullList.concat(songData[k]));
                 fullList = fullList.filter(s => {
                     if (activeRecordIndex !== -1) {
                         return !records[activeRecordIndex].playedSongs.includes(s.ytId);
@@ -530,35 +561,27 @@
                     }
                 });
                 currentChallengeSong = fullList[0] || null;
-                
-                // 依序模式打印
                 if (currentChallengeSong) {
                     for (let area in songData) {
-                        if (songData[area].find(s => s.ytId === currentChallengeSong.ytId)) {
-                            console.log(area + "區");
-                            break;
-                        }
+                        if (songData[area].find(s => s.ytId === currentChallengeSong.ytId)) { console.log(area + "區"); break; }
                     }
                 }
             }
 
-            if (!currentChallengeSong) {
-                $("#display-info").text("此條件下已無新歌！");
-                $("#display-title").text("請讀取其他記錄或重新整理");
-                return;
+            if (!currentChallengeSong) { 
+                $("#display-info").text("此條件下已無新歌！"); 
+                $("#display-title").text("請讀取其他記錄或重新整理"); 
+                updateSongCounter();
+                return; 
             }
 
-            // 寫入對應名單
             if (activeRecordIndex !== -1) {
-                if (!records[activeRecordIndex].playedSongs.includes(currentChallengeSong.ytId)) {
-                    records[activeRecordIndex].playedSongs.push(currentChallengeSong.ytId);
-                    saveRecordsToLocal();
-                }
+                if (!records[activeRecordIndex].playedSongs.includes(currentChallengeSong.ytId)) { records[activeRecordIndex].playedSongs.push(currentChallengeSong.ytId); saveRecordsToLocal(); }
             } else {
-                if (!sessionPlayedSongs.includes(currentChallengeSong.ytId)) {
-                    sessionPlayedSongs.push(currentChallengeSong.ytId);
-                }
+                if (!sessionPlayedSongs.includes(currentChallengeSong.ytId)) sessionPlayedSongs.push(currentChallengeSong.ytId);
             }
+
+            updateSongCounter();
 
             const isMasked = $("#extra-btn-3").hasClass("active");
             $("#song-display").css("opacity", 0);
@@ -582,7 +605,7 @@
             clearTimeout(stopTimer);
         }
 
-        // --- 選單與初始化 ---
+        // --- 選單同步 ---
         function syncMenuText() {
             const isSenior = $("#extra-btn-2").hasClass("active");
             const isCountdown = $("#extra-btn-1").hasClass("active");
@@ -610,18 +633,17 @@
             });
             $(".record-info").click(function() { loadRecord($(this).data("index")); $("#modal-c").fadeOut(); });
             $(".record-del-btn").click(function(e) {
-                e.stopPropagation();
-                const idx = $(this).data("index");
+                e.stopPropagation(); const idx = $(this).data("index");
                 if (confirm(`確定要刪除「${records[idx].name}」嗎？`)) {
                     records.splice(idx, 1);
                     if (activeRecordIndex === idx) activeRecordIndex = -1; else if (activeRecordIndex > idx) activeRecordIndex--;
-                    saveRecordsToLocal(); renderRecordList();
+                    saveRecordsToLocal(); renderRecordList(); updateSongCounter();
                 }
             });
         }
 
         function loadRecord(index) {
-            sessionPlayedSongs = []; // 讀取記錄，清空遊客暫存
+            sessionPlayedSongs = []; 
             activeRecordIndex = index;
             const rec = records[index];
             $("#status-msg").text(rec.name);
@@ -648,6 +670,24 @@
         }
 
         function resetCountdown() { $("#countdown-bar").stop().css({ width: '100%' }); $("#countdown-container").hide(); }
+
+        // 開始 10 秒紫色沙漏跑條
+        function startHourglassCountdown() {
+            const $container = $("#hourglass-container"), $bar = $("#hourglass-bar");
+            $container.hide();
+            $bar.stop().css({ width: '100%' }); // 重置跑條長度
+            $container.show();
+            $bar.animate({ width: '0%' }, 10000, "linear", function() {
+                $container.fadeOut(); // 跑完後消失
+            });
+        }
+
+        // 重置/收起紫色沙漏跑條
+        function resetHourglass() {
+            $("#hourglass-bar").stop().css({ width: '100%' });
+            $("#hourglass-container").hide();
+        }
+
         function startCountdown() {
             if (!$("#extra-btn-1").hasClass("active")) return;
             const $container = $("#countdown-container"), $bar = $("#countdown-bar");
@@ -683,7 +723,7 @@
                 const name = $("#user-name-input").val().trim();
                 if (!name) { alert("請輸入用戶名稱！"); return; }
                 
-                sessionPlayedSongs = []; // 建立記錄，清空遊客暫存
+                sessionPlayedSongs = []; 
 
                 const newRec = { name: name, color: selectedBgColor, playedSongs: [] };
                 if (records.length >= 4) records.shift();
@@ -699,7 +739,10 @@
 
             $("#btn-seq").click(() => switchMode('seq'));
             $("#btn-rand").click(() => switchMode('rand'));
-            $(".area-checkbox").change(function() { if ($(".area-checkbox:checked").length < 3) $("#extra-btn-2").removeClass("active"); switchMode(currentMode); });
+            $(".area-checkbox").change(function() { 
+                if ($(".area-checkbox:checked").length < 3) $("#extra-btn-2").removeClass("active");
+                switchMode(currentMode); 
+            });
 
             $(".new-btn").click(function() {
                 if (this.id === "extra-btn-2" && $(".area-checkbox:checked").length < 3) return;
@@ -710,12 +753,21 @@
 
             $("#play-btn").click(function() {
                 if (!isPlayerReady || !currentChallengeSong) return;
-                resetCountdown(); player.playVideo(); player.unMute(); player.setVolume(100);
+                resetCountdown();
+                resetHourglass();
+                player.playVideo(); player.unMute(); player.setVolume(100);
                 player.loadVideoById({ videoId: currentChallengeSong.ytId, startSeconds: currentChallengeSong.start });
             });
 
             $("#next-btn").click(function() {
                 renderSong();
+            });
+
+            // 點擊沙漏按鈕 (原 prev-btn) 觸發倒數
+            $("#prev-btn").click(function() {
+                resetCountdown();       // 先關閉綠色跑條（如果有的話）
+                resetHourglass();       // 先重置紫色跑條（避免連續點擊重疊）
+                startHourglassCountdown(); // 啟動 10 秒紫色跑條
             });
         });
 
