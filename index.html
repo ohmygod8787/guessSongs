@@ -697,12 +697,12 @@
 
         function resetCountdown() { $("#countdown-bar").stop().css({ width: '100%' }); $("#countdown-container").hide(); }
 
-        // 開始 10 秒紫色沙漏跑條 (音效保證版)
+        // 開始 10 秒紫色沙漏跑條 (修改版：5秒兩聲、0秒三聲)
         function startHourglassCountdown() {
             const $container = $("#hourglass-container"), $bar = $("#hourglass-bar");
             resetHourglass(); 
 
-            // 1. 啟動音 (10s)：200Hz 三角波
+            // 1. 啟動音 (10s)：維持原定頻率與高音量
             playCustomSound(200, 0.5, 3.0, 'triangle'); 
             
             $container.show();
@@ -710,15 +710,29 @@
             
             // 使用 linear 確保動畫剛好 10 秒
             $bar.animate({ width: '0%' }, 10000, "linear", function() {
-                // --- 3. 結束音 (0s)：當動畫確定完成時立即播放 ---
-                // 頻率稍微提高到 130Hz 確保手機聽得到，並使用穿透力強的 triangle
-                playCustomSound(130, 1.2, 13.5, 'triangle'); 
+                // --- 3. 結束音 (0s)：連續三聲 ---
+                // 第一聲
+                playCustomSound(130, 0.4, 13.5, 'triangle'); 
+                // 第二聲 (延遲 300ms)
+                hourglassAudioTimers.push(setTimeout(() => {
+                    playCustomSound(130, 0.4, 13.5, 'triangle');
+                }, 300));
+                // 第三聲 (延遲 600ms)
+                hourglassAudioTimers.push(setTimeout(() => {
+                    playCustomSound(130, 0.8, 15.0, 'triangle'); // 最後一聲稍微長一點點、重一點
+                }, 600));
+
                 $container.fadeOut(500);
             });
 
-            // 2. 中間提醒 (5s)：450Hz，音量大
+            // 2. 中間提醒 (5s)：連續兩聲
             hourglassAudioTimers.push(setTimeout(() => {
-                playCustomSound(450, 0.4, 2.5, 'triangle');
+                // 第一聲
+                playCustomSound(450, 0.25, 2.5, 'triangle');
+                // 第二聲 (延遲 300ms)
+                hourglassAudioTimers.push(setTimeout(() => {
+                    playCustomSound(450, 0.25, 2.5, 'triangle');
+                }, 300));
             }, 5000));
         }
 
