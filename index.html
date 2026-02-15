@@ -703,7 +703,7 @@
             resetHourglass(); 
 
             // 1. 啟動音 (10s)：200Hz 三角波
-            playCustomSound(200, 0.5, 1.0, 'triangle'); 
+            playCustomSound(200, 0.5, 3.0, 'triangle'); 
             
             $container.show();
             $bar.css({ width: '100%' });
@@ -712,13 +712,13 @@
             $bar.animate({ width: '0%' }, 10000, "linear", function() {
                 // --- 3. 結束音 (0s)：當動畫確定完成時立即播放 ---
                 // 頻率稍微提高到 130Hz 確保手機聽得到，並使用穿透力強的 triangle
-                playCustomSound(130, 1.2, 1.5, 'triangle'); 
+                playCustomSound(130, 1.2, 13.5, 'triangle'); 
                 $container.fadeOut(500);
             });
 
             // 2. 中間提醒 (5s)：450Hz，音量大
             hourglassAudioTimers.push(setTimeout(() => {
-                playCustomSound(450, 0.4, 1.0, 'triangle');
+                playCustomSound(450, 0.4, 2.5, 'triangle');
             }, 5000));
         }
 
