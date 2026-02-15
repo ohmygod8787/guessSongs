@@ -248,6 +248,32 @@
     <div id="yt-player-container"><div id="player"></div></div>
 
     <script>
+        // --- 音訊合成引擎最終優化版 ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playCustomSound(freq, duration, volume, type = 'triangle') {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.02); // 更快的攻擊音
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) { console.log("音訊播放失敗:", e); }
+        }
+
+        // 儲存沙漏定時器，方便隨時停止
+        let hourglassAudioTimers = [];
+
         const songData = {
             "A": [
                 { year: 1979, singer: "蔡琴", title: "恰似你的溫柔", ytId: "bs4Wz_b5p90", start: 70 },
@@ -671,19 +697,37 @@
 
         function resetCountdown() { $("#countdown-bar").stop().css({ width: '100%' }); $("#countdown-container").hide(); }
 
-        // 開始 10 秒紫色沙漏跑條
+        // 開始 10 秒紫色沙漏跑條 (音效保證版)
         function startHourglassCountdown() {
             const $container = $("#hourglass-container"), $bar = $("#hourglass-bar");
-            $container.hide();
-            $bar.stop().css({ width: '100%' }); // 重置跑條長度
+            resetHourglass(); 
+
+            // 1. 啟動音 (10s)：200Hz 三角波
+            playCustomSound(200, 0.5, 1.0, 'triangle'); 
+            
             $container.show();
+            $bar.css({ width: '100%' });
+            
+            // 使用 linear 確保動畫剛好 10 秒
             $bar.animate({ width: '0%' }, 10000, "linear", function() {
-                $container.fadeOut(); // 跑完後消失
+                // --- 3. 結束音 (0s)：當動畫確定完成時立即播放 ---
+                // 頻率稍微提高到 130Hz 確保手機聽得到，並使用穿透力強的 triangle
+                playCustomSound(130, 1.2, 1.5, 'triangle'); 
+                $container.fadeOut(500);
             });
+
+            // 2. 中間提醒 (5s)：450Hz，音量大
+            hourglassAudioTimers.push(setTimeout(() => {
+                playCustomSound(450, 0.4, 1.0, 'triangle');
+            }, 5000));
         }
 
         // 重置/收起紫色沙漏跑條
         function resetHourglass() {
+            // 停止所有排程中的聲音 (主要是 5s 那聲)
+            hourglassAudioTimers.forEach(clearTimeout);
+            hourglassAudioTimers = [];
+            
             $("#hourglass-bar").stop().css({ width: '100%' });
             $("#hourglass-container").hide();
         }
