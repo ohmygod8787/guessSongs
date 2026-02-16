@@ -277,10 +277,10 @@
         const songData = {
             "A": [
                 { year: 1979, singer: "蔡琴", title: "恰似你的溫柔", ytId: "bs4Wz_b5p90", start: 70 },
-                { year: 1972, singer: "甄妮", title: "誓言", ytId: "OhMWoeuBiWc", start: 52 },
                 { year: 1979, singer: "潘安邦", title: "外婆的澎湖灣", ytId: "oqeC2vbrfsQ", start: 65 },
                 { year: 1977, singer: "鄧麗君", title: "月亮代表我的心", ytId: "wOuFMIVBPlM", start: 61 },
                 { year: 1977, singer: "鳳飛飛", title: "我是一片雲", ytId: "dOV7qboUU9c", start: 45 },
+                { year: 1978, singer: "鳳飛飛", title: "流水年華", ytId: "nKslRCuwhMk", start: 36 },
                 { year: 1979, singer: "齊豫", title: "橄欖樹", ytId: "hEtX0rn8FjU", start: 47 },
                 { year: 1973, singer: "歐陽菲菲", title: "熱情的沙漠", ytId: "cno9BFpdeGA", start: 40 },
                 { year: 1971, singer: "楊小萍", title: "梨山痴情花", ytId: "ojiY0UgmRI8", start: 36 },
@@ -326,11 +326,11 @@
                 { year: 1988, singer: "巫啟賢", title: "妳是我的唯一", ytId: "zgH0YaZW5og", start: 62 },
                 { year: 1989, singer: "陳淑樺", title: "夢醒時分", ytId: "BWbAdL92jqU", start: 63 },
                 { year: 1990, singer: "林憶蓮", title: "愛上一個不回家的人", ytId: "TM5HEICCAE8", start: 86 },
-                { year: 1982, singer: "沈文程", title: "心事誰人知(台)", ytId: "sUipHah7SoU", start: 65 },
+                { year: 1982, singer: "沈文程", title: "心事誰人知(台)", ytId: "sUipHah7SoU", start: 29 },
                 { year: 1982, singer: "洪榮宏", title: "一支小雨傘(台)", ytId: "4N8jQXUilas", start: 54 },
                 { year: 1984, singer: "江蕙", title: "惜別的海岸(台)", ytId: "FHPrSjpBSu0", start: 72 },
                 { year: 1985, singer: "陳小雲", title: "舞女(台)", ytId: "mL8RXLb93-8", start: 33 },
-                { year: 1986, singer: "李茂山", title: "今夜又擱塊下雨(台)", ytId: "3Zq7eGxGyaw", start: 62 },
+                { year: 1985, singer: "葉啟田", title: "乾一杯(台)", ytId: "xc17XcRG5eA", start: 36 },
                 { year: 1987, singer: "阿吉仔", title: "命運的吉他(台)", ytId: "sZb0eQeVt4c", start: 59 },
                 { year: 1987, singer: "黃乙玲", title: "講什麼山盟海誓(台)", ytId: "XM96xW1cum0", start: 78 },
                 { year: 1987, singer: "龍千玉", title: "不如甭熟識(台)", ytId: "ftEfcHy3Iu0", start: 73 },
@@ -352,12 +352,12 @@
                 { year: 1990, singer: "伍思凱", title: "特別的愛給特別的你", ytId: "hm0xK0dp134", start: 54 },
                 { year: 1990, singer: "草蜢", title: "失戀陣線聯盟", ytId: "suIbr4JS5MA", start: 46 },
                 { year: 1981, singer: "洪榮宏", title: "我是男子漢(台)", ytId: "FEjMv1W8dGk", start: 56 },
+                { year: 1982, singer: "沈文程", title: "七桃人(台)", ytId: "5VUEHib4fMA", start: 38.5 }
                 { year: 1988, singer: "陳小雲", title: "愛情的騙子我問你(台)", ytId: "LleqBkUeuEs", start: 8 },
                 { year: 1988, singer: "葉啟田", title: "浪子的心情(台)", ytId: "yG7E6smLIEM", start: 55 },
                 { year: 1988, singer: "羅時豐 & 王瑞霞", title: "小姐請你給我愛(台)", ytId: "xOrMMnfgcHE", start: 60 },
                 { year: 1990, singer: "王識賢", title: "雙人枕頭(台)", ytId: "mAY61EhWeEE", start: 88 },
                 { year: 1990, singer: "江蕙", title: "空笑夢(台)", ytId: "Xj-pbUkFBTE", start: 62 },
-                { year: 1990, singer: "陳盈潔", title: "風飛沙(台)", ytId: "60P7rPo4jJQ", start: 69 }
             ],
             "C": [
                 { year: 1991, singer: "張清芳", title: "加州陽光", ytId: "MUQokGdc_eo", start: 50 },
@@ -703,7 +703,7 @@
             resetHourglass(); 
 
             // 1. 啟動音 (10s)：維持原定頻率與高音量
-            playCustomSound(200, 0.5, 3.0, 'triangle'); 
+            playCustomSound(400, 0.5, 3.0, 'triangle'); 
             
             $container.show();
             $bar.css({ width: '100%' });
@@ -712,14 +712,14 @@
             $bar.animate({ width: '0%' }, 10000, "linear", function() {
                 // --- 3. 結束音 (0s)：連續三聲 ---
                 // 第一聲
-                playCustomSound(130, 0.4, 13.5, 'triangle'); 
+                playCustomSound(500, 0.4, 13.5, 'triangle'); 
                 // 第二聲 (延遲 300ms)
                 hourglassAudioTimers.push(setTimeout(() => {
-                    playCustomSound(130, 0.4, 13.5, 'triangle');
+                    playCustomSound(500, 0.4, 13.5, 'triangle');
                 }, 300));
                 // 第三聲 (延遲 600ms)
                 hourglassAudioTimers.push(setTimeout(() => {
-                    playCustomSound(130, 0.8, 15.0, 'triangle'); // 最後一聲稍微長一點點、重一點
+                    playCustomSound(500, 0.8, 15.0, 'triangle'); // 最後一聲稍微長一點點、重一點
                 }, 600));
 
                 $container.fadeOut(500);
@@ -728,10 +728,10 @@
             // 2. 中間提醒 (5s)：連續兩聲
             hourglassAudioTimers.push(setTimeout(() => {
                 // 第一聲
-                playCustomSound(450, 0.25, 2.5, 'triangle');
+                playCustomSound(500, 0.25, 2.5, 'triangle');
                 // 第二聲 (延遲 300ms)
                 hourglassAudioTimers.push(setTimeout(() => {
-                    playCustomSound(450, 0.25, 2.5, 'triangle');
+                    playCustomSound(500, 0.25, 2.5, 'triangle');
                 }, 300));
             }, 5000));
         }
