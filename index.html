@@ -168,8 +168,27 @@
             <h2 style="margin-bottom: 20px;">MENU</h2>
             <button class="modal-btn" id="go-to-b">建立記錄</button>
             <button class="modal-btn" id="go-to-c" style="background: #007bff;">讀取記錄</button>
-            <button class="modal-btn" id="menu-toggle-senior" style="background: #f39c12;">敬老模式(開)</button>
-            <button class="modal-btn" id="menu-toggle-countdown" style="background: #9b59b6;">倒數模式(開)</button>
+            
+            <!-- 沙漏設定 (您上一步加的) -->
+            <div style="margin: 10px 0; width: 90%; text-align: center; border: 1px dashed #555; padding: 10px; border-radius: 10px;">
+                <label style="font-size: 18px; color: #fff; font-weight: bold;">沙漏設定：</label>
+                <input type="number" id="hourglass-time-input" class="modal-input" 
+                       style="width: 60px; margin: 0 5px; padding: 5px; display: inline-block;" 
+                       value="10" min="10">
+                <span style="color: #fff;">秒</span>
+                <div style="font-size: 11px; color: #f39c12; margin-top: 5px;">設定沙漏倒數秒數 不可低於10秒</div>
+            </div>
+
+            <!-- 新增：倒數設定 (對應 id="extra-btn-1") -->
+            <div style="margin: 10px 0; width: 90%; text-align: center; border: 1px dashed #555; padding: 10px; border-radius: 10px;">
+                <label style="font-size: 18px; color: #fff; font-weight: bold;">倒數設定：</label>
+                <input type="number" id="countdown-time-input" class="modal-input" 
+                       style="width: 60px; margin: 0 5px; padding: 5px; display: inline-block;" 
+                       value="15" min="1">
+                <span style="color: #fff;">秒</span>
+                <div style="font-size: 11px; color: #28a745; margin-top: 5px;">設定播放完畢後的自動倒數秒數</div>
+            </div>
+
             <button class="modal-btn cancel" onclick="$('#modal-a').fadeOut()">關閉</button>
         </div>
     </div>
@@ -227,17 +246,17 @@
 
                 <div class="area-selector">
                     <input type="checkbox" id="area-a" class="area-checkbox" value="A" checked>
-                    <label for="area-a" class="area-label"><span class="letter">A區</span><span class="years">Before 1980</span></label>
+                    <label for="area-a" class="area-label"><span class="letter">A區</span><span class="years">Before 1990</span></label>
                     <input type="checkbox" id="area-b" class="area-checkbox" value="B" checked>
-                    <label for="area-b" class="area-label"><span class="letter">B區</span><span class="years">1981-1990</span></label>
+                    <label for="area-b" class="area-label"><span class="letter">B區</span><span class="years">1991-2000</span></label>
                     <input type="checkbox" id="area-c" class="area-checkbox" value="C" checked>
-                    <label for="area-c" class="area-label"><span class="letter">C區</span><span class="years">1991-2000</span></label>
+                    <label for="area-c" class="area-label"><span class="letter">C區</span><span class="years">2001-2010</span></label>
                     <input type="checkbox" id="area-d" class="area-checkbox" value="D" checked>
-                    <label for="area-d" class="area-label"><span class="letter">D區</span><span class="years">2001-2010</span></label>
+                    <label for="area-d" class="area-label"><span class="letter">D區</span><span class="years">2011-2020</span></label>
                     <input type="checkbox" id="area-e" class="area-checkbox" value="E" checked>
-                    <label for="area-e" class="area-label"><span class="letter">E區</span><span class="years">2011-2020</span></label>
-                    <input type="checkbox" id="area-f" class="area-checkbox" value="F" checked>
-                    <label for="area-f" class="area-label"><span class="letter">F區</span><span class="years">After 2021</span></label>
+                    <label for="area-e" class="area-label"><span class="letter">E區</span><span class="years">After 2021</span></label>
+                    <!-- <input type="checkbox" id="area-f" class="area-checkbox" value="F" checked>
+                    <label for="area-f" class="area-label"><span class="letter">F區</span><span class="years"></span></label> -->
                 </div>
             </div>
         </div>
@@ -293,7 +312,7 @@
                 { year: 1971, singer: "邱蘭芬", title: "走馬燈(台)", ytId: "GMYYuoI1dUo", start: 45 },
                 { year: 1970, singer: "葉啟田", title: "內山姑娘要出嫁(台)", ytId: "14MUWf7AOlM", start: 58 },
                 { year: 1959, singer: "郭金發", title: "燒肉粽(台)", ytId: "m45fUda0xP4", start: 47 },
-                { year: 1980, singer: "陳盈潔", title: "期待再相會(台)", ytId: "hEKV8QQ_8DA", start: 51 },
+                // { year: 1980, singer: "陳盈潔", title: "期待再相會(台)", ytId: "hEKV8QQ_8DA", start: 51 },
                 { year: 1972, singer: "西卿", title: "粉紅色的腰帶(台)", ytId: "iR3T4O8Yeso", start: 37 },
                 { year: 1977, singer: "鳳飛飛", title: "心酸酸(台)", ytId: "0V-9JUF4tF0", start: 51 },
                 { year: 1969, singer: "姚蘇蓉", title: "今天不回家", ytId: "WbU-oWW0qXI", start: 76 },
@@ -306,18 +325,16 @@
                 { year: 1980, singer: "王夢麟", title: "阿美阿美", ytId: "NoY2m1iSTsw", start: 44 },
                 { year: 1974, singer: "鄧麗君", title: "一簾幽夢", ytId: "t0t0NWwRSOo", start: 75 },
                 { year: 1973, singer: "鄧麗君", title: "玫瑰玫瑰我愛你", ytId: "YG63Zuurlxk", start: 35 },
-                { year: 1968, singer: "紀露霞", title: "望你早歸(台)", ytId: "DMfdgF4KN4k", start: 64 },
+                // { year: 1968, singer: "紀露霞", title: "望你早歸(台)", ytId: "DMfdgF4KN4k", start: 64 },
                 { year: 1968, singer: "陳芬蘭", title: "快樂的出帆", ytId: "Pg_cb_Mn69A", start: 49 },
                 { year: 1969, singer: "文夏", title: "媽媽請你也保重(台)", ytId: "O23DdAcgxo4", start: 38 },
                 { year: 1970, singer: "葉啟田", title: "心所愛的人(台)", ytId: "TAWqTKL64qM", start: 63 },
                 { year: 1960, singer: "洪一峰", title: "山頂的黑狗兄(台)", ytId: "6GXFA8mxXD8", start: 45 },
                 { year: 1972, singer: "葉啟田", title: "墓仔埔也敢去(台)", ytId: "9HHGgXwuVzI", start: 60 },
-                { year: 1975, singer: "吳晉淮", title: "暗淡的月(台)", ytId: "JSaQLQtKG7Q", start: 59 },
+                // { year: 1975, singer: "吳晉淮", title: "暗淡的月(台)", ytId: "JSaQLQtKG7Q", start: 59 },
                 { year: 1976, singer: "葉啟田", title: "人生(台)", ytId: "D41zN65joz4", start: 67 },
                 { year: 1980, singer: "陳盈潔", title: "期待再相會(台)", ytId: "hEKV8QQ_8DA", start: 112 },
-                { year: 1979, singer: "陳盈潔", title: "天涯找愛人(台)", ytId: "bsDFYniy-K0", start: 34 }
-            ],
-            "B": [
+                { year: 1979, singer: "陳盈潔", title: "天涯找愛人(台)", ytId: "bsDFYniy-K0", start: 34 },
                 { year: 1981, singer: "劉文正", title: "三月裡的小雨", ytId: "7-7x9ddaBX8", start: 38 },
                 { year: 1983, singer: "費玉清", title: "一剪梅", ytId: "AjitR7RZEQU", start: 93 },
                 { year: 1983, singer: "蘇芮", title: "一樣的月光", ytId: "dqcoG9LUzgE", start: 79 },
@@ -359,7 +376,7 @@
                 { year: 1990, singer: "王識賢", title: "雙人枕頭(台)", ytId: "mAY61EhWeEE", start: 88 },
                 { year: 1990, singer: "江蕙", title: "空笑夢(台)", ytId: "Xj-pbUkFBTE", start: 62 },
             ],
-            "C": [
+            "B": [
                 { year: 1991, singer: "張清芳", title: "加州陽光", ytId: "MUQokGdc_eo", start: 50 },
                 { year: 1993, singer: "黃安", title: "新鴛鴦蝴蝶夢", ytId: "7W4ghfVUIrw", start: 82.5 },
                 { year: 1992, singer: "林志穎", title: "不是每個戀曲都有美好回憶", ytId: "WWMzuKj2bWM", start: 70 },
@@ -402,7 +419,7 @@
                 { year: 1993, singer: "陳雷", title: "往事就是我的安慰(台)", ytId: "CuNhYt3wvfE", start: 82 },
                 { year: 1994, singer: "吳宗憲", title: "真心換絕情(台)", ytId: "zQCPNxUAgFc", start: 101 }
             ],
-            "D": [
+            "C": [
                 { year: 2004, singer: "周杰倫", title: "爸 我回來了", ytId: "kbLjLQPaQmU", start: 74 },
                 { year: 2001, singer: "周杰倫", title: "忍者", ytId: "CtQhWZ8m-ws", start: 44 },
                 { year: 2001, singer: "F4", title: "流星雨", ytId: "VPZJ6swbWS4", start: 67 },
@@ -411,7 +428,7 @@
                 { year: 2006, singer: "蘇打綠", title: "小情歌", ytId: "AzpFdfhKAfY", start: 37 },
                 { year: 2006, singer: "曹格 & 卓文萱", title: "梁山伯與茱麗葉", ytId: "lQTPpww75cY", start: 70 },
                 { year: 2007, singer: "張惠妹", title: "如果你也聽說", ytId: "UP1aAvgYxLA", start: 68 },
-                { year: 2007, singer: "飛兒樂團", title: "月牙灣", ytId: "udjKDXxBRN", start: 72 },
+                { year: 2007, singer: "飛兒樂團", title: "月牙灣", ytId: "udjKDXxBRNo", start: 72 },
                 { year: 2008, singer: "蕭敬騰", title: "王妃", ytId: "UYNqKDsxwRo", start: 62 },
                 { year: 2009, singer: "徐佳瑩", title: "身騎白馬", ytId: "TOsdcqo7kmk", start: 97 },
                 { year: 2001, singer: "S.H.E", title: "戀人未滿", ytId: "CBAgq3QJx1Y", start: 66 },
@@ -444,7 +461,7 @@
                 { year: 2008, singer: "江蕙", title: "甲你攬牢牢(台)", ytId: "yJ3mr8yN4_Y", start: 90.5 },
                 { year: 2009, singer: "蕭煌奇", title: "心裡有針(台)", ytId: "jgWMxyeJE8I", start: 73.5 }
             ],
-            "E": [
+            "D": [
                 { year: 2011, singer: "陳勢安", title: "天后", ytId: "dvW1rPD0-nQ", start: 73 },
                 { year: 2011, singer: "謝和弦", title: "牽心萬苦", ytId: "CRBJCjSlAgM", start: 55 },
                 { year: 2011, singer: "胡夏", title: "那些年", ytId: "MMxcWJsfbQw", start: 99.5 },
@@ -485,9 +502,9 @@
                 { year: 2017, singer: "盧廣仲", title: "明仔載(台)", ytId: "6koKnqOW_RM", start: 11 },
                 { year: 2019, singer: "茄子蛋", title: "Happy!!! 運將情歌(台)", ytId: "zKxTnkgcBlY", start: 185 }
             ],
-            "F": [
+            "E": [
                 { year: 2021, singer: "動力火車", title: "我很好騙", ytId: "efmtFFnZOGA", start: 63 },
-                { year: 2024, singer: "邱軍", title: "運轉人生(台)", ytId: "n18Vw5VT5UE", start: 47 }
+                // { year: 2024, singer: "邱軍", title: "運轉人生(台)", ytId: "n18Vw5VT5UE", start: 47 },
             ]
         };
 
@@ -534,19 +551,30 @@
 
         function getNextRandomSong() {
             if (selectedAreaKeys.length === 0) return null;
-            const seniorAreas = selectedAreaKeys.slice(0, 2); 
+
+            // 1. 找出當前勾選區域中的「最前一區」 (年代最久遠的那一區)
+            const firstArea = selectedAreaKeys[0]; 
             const isSeniorMode = $("#extra-btn-2").hasClass("active");
             let targetArea = "";
             let isSeniorTrigger = false;
 
-            if (isSeniorMode && nonOldestCounter >= 3) {
-                let seniorPool = []; seniorAreas.forEach(k => seniorPool = seniorPool.concat(getUnplayedFromArea(k)));
-                if (seniorPool.length > 0) {
-                    targetArea = seniorAreas[Math.floor(Math.random() * seniorAreas.length)];
+            // 2. 判斷是否需要強制插播：連續兩首非第一區，第三首必出
+            if (isSeniorMode && nonOldestCounter >= 2) {
+                // 強制設目標為第一區
+                const pool = getUnplayedFromArea(firstArea);
+                if (pool.length > 0) {
+                    targetArea = firstArea;
                     isSeniorTrigger = true;
-                } else { targetArea = currentAreaCycle[cyclePointer]; }
+                    console.log("敬老模式強制：連續兩首非最前區，第三首插播 " + targetArea + "區");
+                } else {
+                    // 如果最前區沒歌了，就走正常輪替
+                    targetArea = currentAreaCycle[cyclePointer];
+                }
             } else {
+                // 正常輪替邏輯
                 targetArea = currentAreaCycle[cyclePointer];
+                
+                // 檢查該區是否還有新歌，沒歌就跳下一區
                 let pool = getUnplayedFromArea(targetArea);
                 if (pool.length === 0) {
                     let attempts = 0;
@@ -559,16 +587,28 @@
                 }
             }
 
-            let finalPool = getUnplayedFromArea(targetArea);
-            if (finalPool.length === 0) return null;
+            const finalPool = getUnplayedFromArea(targetArea);
+            if (finalPool.length === 0) return null; 
+
             const pickedSong = finalPool[Math.floor(Math.random() * finalPool.length)];
 
-            if (seniorAreas.includes(targetArea)) nonOldestCounter = 0; else nonOldestCounter++;
-            cyclePointer = (cyclePointer + 1) % currentAreaCycle.length;
-            if (cyclePointer === 0) currentAreaCycle = [...selectedAreaKeys].sort(() => Math.random() - 0.5);
+            // 3. 更新計數器：如果是出「最前一區」的歌就歸零，否則加1
+            if (targetArea === firstArea) {
+                nonOldestCounter = 0;
+            } else {
+                nonOldestCounter++;
+            }
 
+            // 4. 更新輪替指針
+            cyclePointer = (cyclePointer + 1) % currentAreaCycle.length;
+            if (cyclePointer === 0) {
+                currentAreaCycle = [...selectedAreaKeys].sort(() => Math.random() - 0.5);
+            }
+
+            // 日誌打印
             if (isSeniorTrigger) console.log("觸發敬老模式");
             console.log(targetArea + "區");
+
             return pickedSong;
         }
 
@@ -631,14 +671,6 @@
             clearTimeout(stopTimer);
         }
 
-        // --- 選單同步 ---
-        function syncMenuText() {
-            const isSenior = $("#extra-btn-2").hasClass("active");
-            const isCountdown = $("#extra-btn-1").hasClass("active");
-            $("#menu-toggle-senior").text(`敬老模式(${isSenior ? '關' : '開'})`);
-            $("#menu-toggle-countdown").text(`倒數模式(${isCountdown ? '關' : '開'})`);
-        }
-
         function initColorPicker() {
             const colors = ["rgb(255, 255, 0)", "rgb(255, 165, 0)", "rgb(255, 140, 0)", "rgb(255, 215, 0)", "rgb(50, 205, 50)", "rgb(0, 128, 0)", "rgb(34, 139, 34)", "rgb(173, 255, 47)", "rgb(128, 128, 0)", "rgb(189, 183, 107)", "rgb(139, 69, 19)", "rgb(210, 105, 30)", "rgb(255, 192, 203)", "rgb(255, 105, 180)", "rgb(218, 112, 214)", "rgb(128, 128, 128)"];
             const $picker = $("#color-picker").empty();
@@ -670,6 +702,7 @@
 
         function loadRecord(index) {
             sessionPlayedSongs = []; 
+            currentChallengeSong = null;
             activeRecordIndex = index;
             const rec = records[index];
             $("#status-msg").text(rec.name);
@@ -682,7 +715,7 @@
         function switchMode(mode) {
             currentMode = mode; $(".mode-btn").removeClass("active"); resetCountdown();
             selectedAreaKeys = [];
-            ["A", "B", "C", "D", "E", "F"].forEach(v => { if ($("#area-" + v.toLowerCase()).is(":checked")) selectedAreaKeys.push(v); });
+            ["A", "B", "C", "D", "E"].forEach(v => { if ($("#area-" + v.toLowerCase()).is(":checked")) selectedAreaKeys.push(v); });
             if (selectedAreaKeys.length === 0) return;
 
             if (mode === 'rand') {
@@ -697,43 +730,45 @@
 
         function resetCountdown() { $("#countdown-bar").stop().css({ width: '100%' }); $("#countdown-container").hide(); }
 
-        // 開始 10 秒紫色沙漏跑條 (修改版：5秒兩聲、0秒三聲)
+        // 開始自定義秒數的紫色沙漏跑條 (含音效)
         function startHourglassCountdown() {
             const $container = $("#hourglass-container"), $bar = $("#hourglass-bar");
             resetHourglass(); 
 
-            // 1. 啟動音 (10s)：維持原定頻率與高音量
+            // 取得用戶設定的秒數，若無則預設 10
+            let customSeconds = parseInt($("#hourglass-time-input").val()) || 10;
+            if (customSeconds < 10) customSeconds = 10; // 二次保險
+            let totalMs = customSeconds * 1000;
+
+            // 1. 啟動音：維持原定頻率與高音量
             playCustomSound(400, 0.5, 3.0, 'triangle'); 
             
             $container.show();
             $bar.css({ width: '100%' });
             
-            // 使用 linear 確保動畫剛好 10 秒
-            $bar.animate({ width: '0%' }, 10000, "linear", function() {
+            // 動畫時間改為動態總毫秒
+            $bar.animate({ width: '0%' }, totalMs, "linear", function() {
                 // --- 3. 結束音 (0s)：連續三聲 ---
-                // 第一聲
                 playCustomSound(500, 0.4, 13.5, 'triangle'); 
-                // 第二聲 (延遲 300ms)
                 hourglassAudioTimers.push(setTimeout(() => {
                     playCustomSound(500, 0.4, 13.5, 'triangle');
                 }, 300));
-                // 第三聲 (延遲 600ms)
                 hourglassAudioTimers.push(setTimeout(() => {
-                    playCustomSound(500, 0.8, 15.0, 'triangle'); // 最後一聲稍微長一點點、重一點
+                    playCustomSound(500, 0.8, 15.0, 'triangle'); 
                 }, 600));
 
                 $container.fadeOut(500);
             });
 
-            // 2. 中間提醒 (5s)：連續兩聲
+            // 2. 固定在最後 5 秒時提醒：連續兩聲
+            // 計算延遲時間 = (總秒數 - 5秒) * 1000
+            let reminderDelay = (customSeconds - 5) * 1000;
             hourglassAudioTimers.push(setTimeout(() => {
-                // 第一聲
                 playCustomSound(500, 0.25, 2.5, 'triangle');
-                // 第二聲 (延遲 300ms)
                 hourglassAudioTimers.push(setTimeout(() => {
                     playCustomSound(500, 0.25, 2.5, 'triangle');
                 }, 300));
-            }, 5000));
+            }, reminderDelay));
         }
 
         // 重置/收起紫色沙漏跑條
@@ -749,8 +784,18 @@
         function startCountdown() {
             if (!$("#extra-btn-1").hasClass("active")) return;
             const $container = $("#countdown-container"), $bar = $("#countdown-bar");
-            $container.hide(); $bar.stop().css({ width: '100%' }); $container.show();
-            $bar.animate({ width: '0%' }, 15000, "linear", function() { $container.fadeOut(); });
+            
+            // 讀取 MENU 裡的倒數設定
+            let seconds = parseInt($("#countdown-time-input").val()) || 15;
+            if (seconds < 1) seconds = 1; // 最少 1 秒
+            let totalMs = seconds * 1000;
+
+            $container.hide();
+            $bar.stop().css({ width: '100%' });
+            $container.show();
+            $bar.animate({ width: '0%' }, totalMs, "linear", function() {
+                $container.fadeOut();
+            });
         }
 
         window.onYouTubeIframeAPIReady = function() {
@@ -768,8 +813,14 @@
 
         $(document).ready(function() {
             initColorPicker(); switchMode('rand');
+
+            // 倒數設定輸入檢查
+            $("#countdown-time-input").on('change blur', function() {
+                let val = parseInt($(this).val());
+                if (isNaN(val) || val < 1) $(this).val(15);
+            });
             
-            $("#menu-icon").click(() => { syncMenuText(); $("#modal-a").fadeIn().css("display","flex"); });
+            $("#menu-icon").click(() => { $("#modal-a").fadeIn().css("display","flex"); });
             $("#go-to-b").click(() => { $("#modal-a").hide(); $("#modal-b").fadeIn().css("display","flex"); initColorPicker(); });
             $("#go-to-c").click(() => { $("#modal-a").hide(); renderRecordList(); $("#modal-c").fadeIn().css("display","flex"); });
             $("#cancel-b").click(() => $("#modal-b").fadeOut());
@@ -782,7 +833,7 @@
                 if (!name) { alert("請輸入用戶名稱！"); return; }
                 
                 sessionPlayedSongs = []; 
-
+                currentChallengeSong = null;
                 const newRec = { name: name, color: selectedBgColor, playedSongs: [] };
                 if (records.length >= 4) records.shift();
                 records.push(newRec); activeRecordIndex = records.length - 1; saveRecordsToLocal();
@@ -798,12 +849,12 @@
             $("#btn-seq").click(() => switchMode('seq'));
             $("#btn-rand").click(() => switchMode('rand'));
             $(".area-checkbox").change(function() { 
-                if ($(".area-checkbox:checked").length < 3) $("#extra-btn-2").removeClass("active");
+                if ($(".area-checkbox:checked").length < 2) $("#extra-btn-2").removeClass("active");
                 switchMode(currentMode); 
             });
 
             $(".new-btn").click(function() {
-                if (this.id === "extra-btn-2" && $(".area-checkbox:checked").length < 3) return;
+                if (this.id === "extra-btn-2" && $(".area-checkbox:checked").length < 2) return;
                 $(this).toggleClass("active");
                 if (this.id === "extra-btn-3") renderSong();
                 if (this.id === "extra-btn-1" && !$(this).hasClass("active")) resetCountdown();
